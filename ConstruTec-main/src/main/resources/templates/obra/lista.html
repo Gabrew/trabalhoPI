@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Constru Tec - Obras</title>
+    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1>Gestão de Obras</h1>
+    <a href="/obras/nova" class="btn btn-success mb-3">+ Incluir Nova Obra</a>
+
+    <div class="row">
+        <div class="col-md-4 mb-3" th:each="obra : ${obras}">
+            <div class="card" th:attr="data-id=${obra.id}" onclick="abrirModal(this)">
+                <div class="card-body">
+                    <h5 th:text="${obra.cliente.nome} + ' ' + ${obra.cliente.sobrenome}">Nome do Cliente</h5>
+                    <p>
+                        <strong>Início:</strong>
+                        <span th:text="${#temporals.format(obra.dataInicio, 'dd/MM/yyyy')}">--/--/----</span><br>
+                        <strong>Entrega Prevista:</strong>
+                        <span th:text="${#temporals.format(obra.dataPrevistaEntrega, 'dd/MM/yyyy')}">--/--/----</span><br>
+                        <strong>Valor Estimado:</strong> R$
+                        <span th:text="${#numbers.formatDecimal(obra.valorEstimado, 2, 2)}"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalObra" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Detalhes da Obra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modal-body-content">
+                <!-- Conteúdo preenchido via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments/modalObra :: modalLancamento"></div>
+
+
+<script src="/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script>
+    function abrirModal(card) {
+        const obraId = card.getAttribute('data-id');
+
+        // teste
+        const dummyData = {
+            cliente: { nomeCompleto: "João da Silva" },
+            dataInicio: "2025-05-01",
+            dataTermino: "2025-06-01",
+            valorEstimado: 15000.00,
+            retiradas: [
+                { descricao: "Cimento", quantidade: 10 },
+                { descricao: "Tijolos", quantidade: 500 }
+            ]
+        };
+
+        const body = document.getElementById("modal-body-content");
+        body.innerHTML = `
+            <p><strong>Cliente:</strong> ${dummyData.cliente.nomeCompleto}</p>
+            <p><strong>Início:</strong> ${dummyData.dataInicio}</p>
+            <p><strong>Entrega Prevista:</strong> ${dummyData.dataTermino}</p>
+            <p><strong>Valor Estimado:</strong> R$ ${dummyData.valorEstimado.toFixed(2)}</p>
+            <hr>
+            <h5>Produtos Utilizados</h5>
+            <ul>
+                ${dummyData.retiradas.map(r => `<li>${r.descricao} - ${r.quantidade} un</li>`).join("")}
+            </ul>
+            <button class="btn btn-primary" onclick="abrirFormLancamento(${obraId})">Adicionar Produto</button>
+        `;
+
+        new bootstrap.Modal(document.getElementById("modalObra")).show();
+    }
+
+    function abrirFormLancamento(obraId) {
+        alert("Formulário de lançamento ainda não implementado.");
+    }
+</script>
+
+</body>
+</html>
