@@ -56,6 +56,10 @@ public class EstoqueService {
         return movimentacaoRepository.findByProdutoOrderByDataMovimentacaoDesc(produto);
     }
 
+    public List<MovimentacaoEstoque> buscarMovimentacoesProdutoObra(Produto produto, Obra obra) {
+        return movimentacaoRepository.findByProdutoAndObraOrderByDataMovimentacaoDesc(produto, obra);
+    }
+
     public List<MovimentacaoEstoque> buscarMovimentacoesMatriz() {
         return movimentacaoDao.findByMatriz();
     }

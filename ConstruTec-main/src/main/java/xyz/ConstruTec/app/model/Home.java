@@ -9,6 +9,7 @@ public class Home implements Serializable{
 	private long qtd_produto;
 	private long qtd_cliente;
 	private long qtd_fornecedor;
+	private long qtd_obra;
 	
 	public long getQtd_produto() {
 		return qtd_produto;
@@ -28,6 +29,12 @@ public class Home implements Serializable{
 	public void setQtd_fornecedor(long qtd_fornecedor) {
 		this.qtd_fornecedor = qtd_fornecedor;
 	}
+	public long getQtd_obra() {
+		return qtd_obra;
+	}
+	public void setQtd_obra(long qtd_obra) {
+		this.qtd_obra = qtd_obra;
+	}
 	
 	@Override
 	public int hashCode() {
@@ -36,6 +43,7 @@ public class Home implements Serializable{
 		result = prime * result + (int) (qtd_cliente ^ (qtd_cliente >>> 32));
 		result = prime * result + (int) (qtd_fornecedor ^ (qtd_fornecedor >>> 32));
 		result = prime * result + (int) (qtd_produto ^ (qtd_produto >>> 32));
+		result = prime * result + (int) (qtd_obra ^ (qtd_obra >>> 32));
 		return result;
 	}
 	
@@ -53,6 +61,8 @@ public class Home implements Serializable{
 		if (qtd_fornecedor != other.qtd_fornecedor)
 			return false;
 		if (qtd_produto != other.qtd_produto)
+			return false;
+		if (qtd_obra != other.qtd_obra)
 			return false;
 		return true;
 	}

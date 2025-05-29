@@ -149,7 +149,7 @@
                                     </td>
                                     <td>
                                         <a class="btn btn-info btn-sm" 
-                                           th:href="@{/estoque/historico/{id}(id=${item.produto.id})}" 
+                                           th:href="@{/estoque/historico/{id}(id=${item.produto.id}, obraId=${obra.id})}" 
                                            title="Histórico de Movimentações">
                                             <span class="oi oi-clock"></span>
                                         </a>

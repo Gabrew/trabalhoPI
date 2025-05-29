@@ -185,10 +185,23 @@ public class EstoqueController {
     }
 
     @GetMapping("/historico/{produtoId}")
-    public String historicoMovimentacoes(@PathVariable Long produtoId, ModelMap model) {
+    public String historicoMovimentacoes(
+            @PathVariable Long produtoId,
+            @RequestParam(required = false) Long obraId,
+            ModelMap model) {
         Produto produto = produtoService.buscarPorId(produtoId);
         if (produto != null) {
             model.addAttribute("produto", produto);
+            
+            if (obraId != null) {
+                Obra obra = obraService.buscarPorId(obraId);
+                if (obra != null) {
+                    model.addAttribute("obra", obra);
+                    model.addAttribute("movimentacoes", estoqueService.buscarMovimentacoesProdutoObra(produto, obra));
+                    return "estoque/historico";
+                }
+            }
+            
             model.addAttribute("movimentacoes", estoqueService.buscarMovimentacoesProduto(produto));
             return "estoque/historico";
         }

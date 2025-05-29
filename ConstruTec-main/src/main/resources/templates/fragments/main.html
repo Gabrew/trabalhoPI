@@ -5,7 +5,7 @@
 </head>
 <body>
 	<main class="container" th:fragment="principal"
-		style="min-height: 485px;">
+		style="min-height: 485px; margin-bottom: 80px;">
 
 		<div class="com-md-12 mt-3"
 			style="border: 1px dotted #ccc; padding: 10px">
@@ -34,6 +34,14 @@
 						<div class="card-body">
 							<h6 class="card-title text-center">Quantidade Atual</h6>
 							<p class="card-text text-center"><span style="font-size: 40px;" th:text="${home.qtd_produto}"></span></p>
+						</div>
+					</div>
+					<div class="card text-white bg-info mb-3"
+						style="max-width: 33rem;">
+						<div class="card-header">Obras</div>
+						<div class="card-body">
+							<h6 class="card-title text-center">Quantidade Atual</h6>
+							<p class="card-text text-center"><span style="font-size: 40px;" th:text="${home.qtd_obra}"></span></p>
 						</div>
 					</div>
 				</div>

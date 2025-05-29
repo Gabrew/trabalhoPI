@@ -18,9 +18,13 @@
                             <i class="oi oi-caret-right"></i>
                             <span>Histórico de Movimentações - </span>
                             <span th:text="${produto.descricao}">Produto</span>
+                            <span th:if="${obra != null}">
+                                <span> na Obra: </span>
+                                <span th:text="${obra.nome}">Nome da Obra</span>
+                            </span>
                         </li>
                     </ul>
-                    <a class="btn btn-primary btn-md" href="/estoque" role="button">
+                    <a class="btn btn-primary btn-md" th:href="${obra != null ? '/obras/' + obra.id + '/detalhes' : '/estoque'}" role="button">
                         <span class="oi oi-arrow-left" title="Voltar" aria-hidden="true"></span>
                         <span>Voltar</span>
                     </a>
