@@ -46,7 +46,7 @@
                                         <option value="">Selecione...</option>
                                         <option th:each="p : ${produtos}" 
                                                 th:value="${p.id}" 
-                                                th:text="${p.descricao + ' - Disponível: ' + ${estoqueProduto[p.id]}}">
+                                                th:text="${p.descricao}">
                                             Produto
                                         </option>
                                     </select>
@@ -63,7 +63,7 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="origemId">Origem</label>
-                                    <select id="origemId" name="origemId" class="form-control" required>
+                                    <select id="origemId" name="origemId" class="form-control" required onchange="atualizarQuantidadeDisponivel()">
                                         <option value="">Selecione primeiro um produto...</option>
                                     </select>
                                 </div>
@@ -134,6 +134,8 @@
     <script th:inline="javascript">
         // Dados do estoque disponível por obra
         const estoqueObras = /*[[${estoqueObras}]]*/ {};
+        const estoqueProdutoMatriz = /*[[${estoqueProduto}]]*/ {};
+        const obras = /*[[${obras}]]*/ [];
         
         // Define a data atual como valor padrão
         document.addEventListener('DOMContentLoaded', function() {
@@ -142,43 +144,64 @@
             document.getElementById('dataMovimentacao').value = now.toISOString().slice(0,16);
         });
 
+        function getEstoqueDisponivel(produtoId, origemId) {
+            if (!produtoId) return 0;
+            
+            if (!origemId) { // Matriz
+                return estoqueProdutoMatriz[produtoId] || 0;
+            } else {
+                return estoqueObras[produtoId]?.[origemId] || 0;
+            }
+        }
+
+        function atualizarQuantidadeDisponivel() {
+            const produtoId = document.getElementById('produtoId').value;
+            const origemId = document.getElementById('origemId').value;
+            const quantidadeSpan = document.getElementById('quantidadeDisponivel');
+            
+            const estoqueDisponivel = getEstoqueDisponivel(produtoId, origemId);
+            quantidadeSpan.textContent = estoqueDisponivel;
+        }
+
         function atualizarOrigensDisponiveis() {
             const produtoId = document.getElementById('produtoId').value;
             const origemSelect = document.getElementById('origemId');
-            const quantidadeSpan = document.getElementById('quantidadeDisponivel');
             
             // Limpa as opções atuais
             origemSelect.innerHTML = '';
             
             if (!produtoId) {
                 origemSelect.innerHTML = '<option value="">Selecione primeiro um produto...</option>';
-                quantidadeSpan.textContent = '0';
+                atualizarQuantidadeDisponivel();
                 return;
             }
 
             // Adiciona a Matriz como opção se houver estoque
-            const estoqueMatriz = /*[[${estoqueProduto}]]*/ {};
-            if (estoqueMatriz[produtoId] > 0) {
-                const option = new Option('Matriz - Disponível: ' + estoqueMatriz[produtoId], '');
+            const quantidadeMatriz = estoqueProdutoMatriz[produtoId] || 0;
+            if (quantidadeMatriz > 0) {
+                const option = new Option('Matriz', '');
                 origemSelect.add(option);
-                quantidadeSpan.textContent = estoqueMatriz[produtoId];
             }
 
             // Adiciona as obras que têm o produto em estoque
             if (estoqueObras[produtoId]) {
                 Object.entries(estoqueObras[produtoId]).forEach(([obraId, quantidade]) => {
                     if (quantidade > 0) {
-                        const obraNome = /*[[${obras}]]*/.find(o => o.id == obraId).nome;
-                        const option = new Option(obraNome + ' - Disponível: ' + quantidade, obraId);
-                        origemSelect.add(option);
+                        const obra = obras.find(o => o.id == obraId);
+                        if (obra) {
+                            const option = new Option(obra.nome, obraId);
+                            origemSelect.add(option);
+                        }
                     }
                 });
             }
 
             if (origemSelect.options.length === 0) {
                 origemSelect.innerHTML = '<option value="">Sem estoque disponível</option>';
-                quantidadeSpan.textContent = '0';
             }
+
+            // Atualiza a quantidade disponível após mudar as origens
+            atualizarQuantidadeDisponivel();
         }
 
         function validarQuantidade() {
@@ -186,13 +209,7 @@
             const produtoId = document.getElementById('produtoId').value;
             const origemId = document.getElementById('origemId').value;
             
-            let estoqueDisponivel = 0;
-            
-            if (!origemId) { // Matriz
-                estoqueDisponivel = /*[[${estoqueProduto}]]*/ {}[produtoId] || 0;
-            } else {
-                estoqueDisponivel = estoqueObras[produtoId]?.[origemId] || 0;
-            }
+            const estoqueDisponivel = getEstoqueDisponivel(produtoId, origemId);
             
             if (quantidade > estoqueDisponivel) {
                 alert('Quantidade solicitada maior que o estoque disponível!');
