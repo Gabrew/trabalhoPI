@@ -1,0 +1,1 @@
+ALTER TABLE obras MODIFY COLUMN valor_estimado DECIMAL(15,2) NOT NULL; 

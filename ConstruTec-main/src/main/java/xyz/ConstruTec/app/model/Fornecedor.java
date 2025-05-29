@@ -1,16 +1,14 @@
 package xyz.ConstruTec.app.model;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-@SuppressWarnings("serial")
 @Entity
 @Table(name = "FORNECEDORES")
-public class Fornecedor extends AbstractEntity<Long> implements Serializable{
+public class Fornecedor extends AbstractEntity<Long> {
 	
 	@NotBlank(message = "O nome fantasia é obrigatório")
 	@Size(min = 3, message = "O nome fantasia deve conter no mínimo {min} caracteres.")

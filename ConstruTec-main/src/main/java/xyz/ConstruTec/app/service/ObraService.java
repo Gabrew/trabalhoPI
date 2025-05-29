@@ -106,6 +106,10 @@ public class ObraService {
         obraDao.save(obra);
     }
 
+    // Buscar obra por id
+    public Obra buscarPorId(Long id) {
+        return obraDao.findById(id).orElse(null);
+    }
 
     // Adicionar retirada a obra
     @Transactional

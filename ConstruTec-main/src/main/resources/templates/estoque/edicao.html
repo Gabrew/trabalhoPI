@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head>
+    <!-- Meta tags Obrigatórias -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/vendor/open-iconic/open-iconic-bootstrap.css">
+    <title>Edição de Estoque - ConstruTec</title>
+</head>
+<body>
+    <header th:replace="fragments/header :: cabecalho"></header>
+
+    <main>
+        <section class="layout-content">
+            <nav class="navbar navbar-expand-md bg-light">
+                <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active">
+                            <i class="oi oi-caret-right"></i>
+                            <span>Edição de Estoque</span>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="container">
+                <div th:replace="fragments/alert"></div>
+
+                <form th:action="@{/estoque/editar}" th:object="${estoque}" method="POST">
+                    <input type="hidden" th:field="*{id}" />
+                    <input type="hidden" th:field="*{produto}" />
+                    <input type="hidden" th:field="*{obra}" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="produto">Produto</label>
+                            <input type="text" class="form-control" id="produto" th:value="${estoque.produto.descricao}" readonly />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="local">Local</label>
+                            <input type="text" class="form-control" id="local" th:value="${estoque.obra?.nome ?: 'Matriz'}" readonly />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="quantidade">Quantidade</label>
+                            <input type="number" class="form-control" id="quantidade" th:field="*{quantidade}" />
+                            <div class="invalid-feedback">
+                                <span th:errors="*{quantidade}"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="quantidadeMinima">Quantidade Mínima</label>
+                            <input type="number" class="form-control" id="quantidadeMinima" th:field="*{quantidadeMinima}" />
+                            <div class="invalid-feedback">
+                                <span th:errors="*{quantidadeMinima}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a class="btn btn-secondary" th:href="${estoque.obra != null ? '/estoque/obra/' + estoque.obra.id : '/estoque'}" role="button">
+                        <span class="oi oi-arrow-left" title="Voltar" aria-hidden="true"></span>
+                        <span>Cancelar</span>
+                    </a>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="fragments/footer :: rodape"></footer>
+
+    <script src="/vendor/bootstrap/jquery-3.3.1.slim.min.js"></script>
+    <script src="/vendor/bootstrap/popper.min.js"></script>
+    <script src="/vendor/bootstrap/bootstrap.min.js"></script>
+</body>
+</html> 

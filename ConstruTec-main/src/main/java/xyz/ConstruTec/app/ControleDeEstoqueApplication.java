@@ -27,7 +27,7 @@ public class ControleDeEstoqueApplication implements WebMvcConfigurer{
 	
 	@Bean
 	public FixedLocaleResolver localeResolver() {
-		return new FixedLocaleResolver(new Locale("pt","BR"));
+		return new FixedLocaleResolver(new Locale.Builder().setLanguage("pt").setRegion("BR").build());
 	}
 
 }

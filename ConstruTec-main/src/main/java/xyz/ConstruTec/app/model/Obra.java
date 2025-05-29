@@ -11,6 +11,8 @@ import java.util.List;
 @Table(name = "obras")
 public class Obra extends AbstractEntity<Long> {
 
+    @Column(name = "nome", nullable = false)
+    private String nome;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "data_inicio", nullable = false)
@@ -23,6 +25,10 @@ public class Obra extends AbstractEntity<Long> {
     @Column(name = "valor_estimado", nullable = false)
     private BigDecimal valorEstimado;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private StatusObra status = StatusObra.EM_ANDAMENTO;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
@@ -34,6 +40,14 @@ public class Obra extends AbstractEntity<Long> {
     private List<Recebimento> recebimentos = new ArrayList<>();
 
     // Getters e Setters
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
     public LocalDate getDataInicio() {
         return dataInicio;
@@ -57,6 +71,14 @@ public class Obra extends AbstractEntity<Long> {
 
     public void setValorEstimado(BigDecimal valorEstimado) {
         this.valorEstimado = valorEstimado;
+    }
+
+    public StatusObra getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusObra status) {
+        this.status = status;
     }
 
     public Cliente getCliente() {

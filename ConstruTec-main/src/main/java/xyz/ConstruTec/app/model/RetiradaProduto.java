@@ -1,27 +1,34 @@
 package xyz.ConstruTec.app.model;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "retirada_produto")
 public class RetiradaProduto extends AbstractEntity<Long> {
 
-    @Column(nullable = false)
-    private String descricao;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "produto_id")
+    private Produto produto;
 
     @Column(nullable = false)
     private int quantidade;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "data_retirada", nullable = false)
+    private LocalDate dataRetirada;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "obra_id")
     private Obra obra;
 
-    public String getDescricao() {
-        return descricao;
+    public Produto getProduto() {
+        return produto;
     }
 
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
+    public void setProduto(Produto produto) {
+        this.produto = produto;
     }
 
     public int getQuantidade() {
@@ -30,6 +37,14 @@ public class RetiradaProduto extends AbstractEntity<Long> {
 
     public void setQuantidade(int quantidade) {
         this.quantidade = quantidade;
+    }
+
+    public LocalDate getDataRetirada() {
+        return dataRetirada;
+    }
+
+    public void setDataRetirada(LocalDate dataRetirada) {
+        this.dataRetirada = dataRetirada;
     }
 
     public Obra getObra() {

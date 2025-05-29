@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head>
+    <!-- Meta tags Obrigatórias -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/vendor/open-iconic/open-iconic-bootstrap.css">
+    <title>Estoque da Matriz - ConstruTec</title>
+</head>
+<body>
+    <header th:replace="fragments/header :: cabecalho"></header>
+
+    <main>
+        <section class="layout-content">
+            <nav class="navbar navbar-expand-md bg-light">
+                <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active">
+                            <i class="oi oi-caret-right"></i>
+                            <span>Estoque da Matriz</span>
+                        </li>
+                    </ul>
+                    <a class="btn btn-primary btn-md" href="/estoque/transferir" role="button">
+                        <span class="oi oi-plus" title="Transferir" aria-hidden="true"></span>
+                        <span>Nova Transferência</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="container">
+                <div th:replace="fragments/alert"></div>
+
+                <div class="table-responsive">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-sm">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
+                                    <th>Quantidade Mínima</th>
+                                    <th>Última Movimentação</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="estoque : ${estoques}">
+                                    <td th:text="${estoque.id}">1</td>
+                                    <td th:text="${estoque.produto.descricao}">Cimento</td>
+                                    <td th:text="${estoque.quantidade}">100</td>
+                                    <td th:text="${estoque.quantidadeMinima}">10</td>
+                                    <td th:text="${#temporals.format(estoque.ultimaMovimentacao, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                    <td>
+                                        <a class="btn btn-info btn-sm" th:href="@{/estoque/editar/{id} (id=${estoque.id})}" role="button">
+                                            <span class="oi oi-pencil" title="Editar" aria-hidden="true"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h4>Últimas Movimentações</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-sm">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Produto</th>
+                                    <th>Origem</th>
+                                    <th>Destino</th>
+                                    <th>Quantidade</th>
+                                    <th>Data</th>
+                                    <th>Observação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="mov : ${movimentacoes}">
+                                    <td th:text="${mov.id}">1</td>
+                                    <td th:text="${mov.produto.descricao}">Cimento</td>
+                                    <td th:text="${mov.origem?.nome ?: 'Matriz'}">Matriz</td>
+                                    <td th:text="${mov.destino?.nome ?: 'Matriz'}">Obra 1</td>
+                                    <td th:text="${mov.quantidade}">10</td>
+                                    <td th:text="${#temporals.format(mov.dataMovimentacao, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                    <td th:text="${mov.observacao}">Transferência</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="fragments/footer :: rodape"></footer>
+
+    <script src="/vendor/bootstrap/jquery-3.3.1.slim.min.js"></script>
+    <script src="/vendor/bootstrap/popper.min.js"></script>
+    <script src="/vendor/bootstrap/bootstrap.min.js"></script>
+</body>
+</html> 
