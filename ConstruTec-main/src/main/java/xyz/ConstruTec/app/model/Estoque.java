@@ -3,6 +3,9 @@ package xyz.ConstruTec.app.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import org.springframework.format.annotation.NumberFormat;
+import org.springframework.format.annotation.NumberFormat.Style;
 
 @Entity
 @Table(name = "ESTOQUES")
@@ -25,6 +28,14 @@ public class Estoque extends AbstractEntity<Long> {
     
     @Column(name = "ultima_movimentacao")
     private LocalDateTime ultimaMovimentacao;
+
+    @ManyToOne
+    @JoinColumn(name = "fornecedor_id")
+    private Fornecedor fornecedor;
+
+    @NumberFormat(style = Style.CURRENCY, pattern = "#,##0.00")
+    @Column(name = "preco_custo", columnDefinition = "DECIMAL(7,2)")
+    private BigDecimal precoCusto;
     
     public Produto getProduto() {
         return produto;
@@ -64,6 +75,22 @@ public class Estoque extends AbstractEntity<Long> {
     
     public void setUltimaMovimentacao(LocalDateTime ultimaMovimentacao) {
         this.ultimaMovimentacao = ultimaMovimentacao;
+    }
+
+    public Fornecedor getFornecedor() {
+        return fornecedor;
+    }
+
+    public void setFornecedor(Fornecedor fornecedor) {
+        this.fornecedor = fornecedor;
+    }
+
+    public BigDecimal getPrecoCusto() {
+        return precoCusto;
+    }
+
+    public void setPrecoCusto(BigDecimal precoCusto) {
+        this.precoCusto = precoCusto;
     }
     
     @PrePersist

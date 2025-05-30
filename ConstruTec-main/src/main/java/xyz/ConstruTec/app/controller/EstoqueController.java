@@ -11,15 +11,19 @@ import xyz.ConstruTec.app.model.Estoque;
 import xyz.ConstruTec.app.model.MovimentacaoEstoque;
 import xyz.ConstruTec.app.model.Obra;
 import xyz.ConstruTec.app.model.Produto;
+import xyz.ConstruTec.app.model.Fornecedor;
 import xyz.ConstruTec.app.service.EstoqueService;
 import xyz.ConstruTec.app.service.ObraService;
 import xyz.ConstruTec.app.service.ProdutoService;
+import xyz.ConstruTec.app.service.FornecedorService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/estoque")
@@ -33,13 +37,25 @@ public class EstoqueController {
 
     @Autowired
     private ProdutoService produtoService;
+    
+    @Autowired
+    private FornecedorService fornecedorService;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
     @GetMapping
     public String listarEstoqueMatriz(ModelMap model) {
-        model.addAttribute("produtos", produtoService.buscarTodos());
-        model.addAttribute("estoques", estoqueService.buscarEstoqueMatriz());
+        List<Produto> produtos = produtoService.buscarTodos();
+        List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
+        List<Estoque> estoques = estoqueService.buscarEstoqueMatriz();
+        
+        // Log para debug
+        System.out.println("Total de produtos: " + produtos.size());
+        System.out.println("Total de estoques: " + estoques.size());
+        
+        model.addAttribute("produtos", produtos);
+        model.addAttribute("fornecedores", fornecedores);
+        model.addAttribute("estoques", estoques);
         return "estoque/estoque-matriz";
     }
 
@@ -76,6 +92,8 @@ public class EstoqueController {
     public String registrarEntrada(
             @RequestParam("produtoId") Long produtoId,
             @RequestParam("quantidade") Integer quantidade,
+            @RequestParam("fornecedorId") Long fornecedorId,
+            @RequestParam("precoCusto") BigDecimal precoCusto,
             @RequestParam("notaFiscal") String notaFiscal,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime dataEntrada,
             @RequestParam(required = false) String observacao,
@@ -87,10 +105,17 @@ public class EstoqueController {
                 throw new RuntimeException("Produto não encontrado");
             }
 
+            Fornecedor fornecedor = fornecedorService.buscarPorId(fornecedorId);
+            if (fornecedor == null) {
+                throw new RuntimeException("Fornecedor não encontrado");
+            }
+
             // Cria a movimentação de entrada
             MovimentacaoEstoque movimentacao = new MovimentacaoEstoque();
             movimentacao.setProduto(produto);
             movimentacao.setQuantidade(quantidade);
+            movimentacao.setFornecedor(fornecedor);
+            movimentacao.setPrecoCusto(precoCusto);
             movimentacao.setDataMovimentacao(dataEntrada);
             movimentacao.setObservacao("NF: " + notaFiscal + (observacao != null ? " - " + observacao : ""));
 

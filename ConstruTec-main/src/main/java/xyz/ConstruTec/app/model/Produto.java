@@ -1,14 +1,9 @@
 package xyz.ConstruTec.app.model;
 
-import java.math.BigDecimal;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.springframework.format.annotation.NumberFormat;
-import org.springframework.format.annotation.NumberFormat.Style;
 
 @SuppressWarnings("serial")
 @Entity
@@ -20,9 +15,6 @@ public class Produto extends AbstractEntity<Long>{
 	@Column(nullable = false)
 	private String descricao;
 	
-	@Column(nullable = true, length = 80, unique = true)
-	private String referencia;
-	
 	@NotNull(message = "Selecione uma categoria relativa ao produto.")
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -33,85 +25,51 @@ public class Produto extends AbstractEntity<Long>{
 	@Column(nullable = false)
 	private String fabricante;
 	
-	@NotNull(message = "Informe o preço de custo.")
-	@NumberFormat(style = Style.CURRENCY, pattern = "#,##0.00")
-	@Column(nullable = false, columnDefinition = "DECIMAL(7,2) DEFAULT 0.00")
-	private BigDecimal precoCusto;
-	
-	@NotNull(message = "Informe o preço de venda.")
-	@NumberFormat(style = Style.CURRENCY, pattern = "#,##0.00")
-	@Column(nullable = false, columnDefinition = "DECIMAL(7,2) DEFAULT 0.00")
-	private BigDecimal precoVenda;
-	
-	@NotNull(message = "Informe uma quantidade mínima maior que zero.")
-	@Column(nullable = false)
-	private Integer quantidade;
-	
 	@Column(columnDefinition = "TEXT")
 	private String informacoes;
 	
+	@Column(nullable = true)
 	private String foto;
 	
-	@NotNull(message = "Selecione um fornecedor.")
-	@ManyToOne
-	@JoinColumn(name = "fornecedor_id_fk")
-	private Fornecedor fornecedor;
+	@Column(name = "ativo", nullable = false)
+	private boolean ativo = true;
+	
+	@Transient
+	private MovimentacaoEstoque ultimaMovimentacao;
+	
+	@Transient
+	private Estoque estoque;
 	
 	public String getDescricao() {
 		return descricao;
 	}
-	public String getReferencia() {
-		return referencia;
-	}
-	public void setReferencia(String referencia) {
-		this.referencia = referencia;
-	}
+	
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
+	
 	public Categoria getCategoria() {
 		return categoria;
 	}
+	
 	public void setCategoria(Categoria categoria) {
 		this.categoria = categoria;
 	}
+	
 	public String getFabricante() {
 		return fabricante;
 	}
+	
 	public void setFabricante(String fabricante) {
 		this.fabricante = fabricante;
 	}
-	public BigDecimal getPrecoCusto() {
-		return precoCusto;
-	}
-	public void setPrecoCusto(BigDecimal precoCusto) {
-		this.precoCusto = precoCusto;
-	}
-	public BigDecimal getPrecoVenda() {
-		return precoVenda;
-	}
-	public void setPrecoVenda(BigDecimal precoVenda) {
-		this.precoVenda = precoVenda;
-	}
-	public Integer getQuantidade() {
-		return quantidade;
-	}
-	public void setQuantidade(Integer quantidade) {
-		this.quantidade = quantidade;
-	}
+	
 	public String getInformacoes() {
 		return informacoes;
 	}
+	
 	public void setInformacoes(String informacoes) {
 		this.informacoes = informacoes;
-	}
-	
-	public void setFornecedor(Fornecedor fornecedor) {
-		this.fornecedor = fornecedor;
-	}
-	
-	public Fornecedor getFornecedor() {
-		return fornecedor;
 	}
 	
 	public String getFoto() {
@@ -121,17 +79,34 @@ public class Produto extends AbstractEntity<Long>{
 	public void setFoto(String foto) {
 		this.foto = foto;
 	}
+	
+	public boolean isAtivo() {
+		return ativo;
+	}
+	
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
+	}
+	
+	public MovimentacaoEstoque getUltimaMovimentacao() {
+		return ultimaMovimentacao;
+	}
+	
+	public void setUltimaMovimentacao(MovimentacaoEstoque ultimaMovimentacao) {
+		this.ultimaMovimentacao = ultimaMovimentacao;
+	}
+	
+	public Estoque getEstoque() {
+		return estoque;
+	}
+	
+	public void setEstoque(Estoque estoque) {
+		this.estoque = estoque;
+	}
+	
 	@Override
 	public String toString() {
 		return "Produto [descricao=" + descricao + ", categoria=" + categoria + ", fabricante=" + fabricante
-				+ ", precoCusto=" + precoCusto + ", precoVenda=" + precoVenda + ", quantidade=" + quantidade
-				+ ", informacoes=" + informacoes + ", foto=" + foto + ", fornecedor=" + fornecedor + ", getId()="
-				+ getId() + "]";
+				+ ", informacoes=" + informacoes + ", foto=" + foto + ", ativo=" + ativo + ", getId()=" + getId() + "]";
 	}
-    public String getNome() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getNome'");
-    }
-	
-	
 }

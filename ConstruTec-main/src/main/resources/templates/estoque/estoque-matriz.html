@@ -50,6 +50,20 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
+                                    <label for="fornecedorId">Fornecedor</label>
+                                    <select id="fornecedorId" name="fornecedorId" class="form-control" required>
+                                        <option value="">Selecione...</option>
+                                        <option th:each="f : ${fornecedores}" th:value="${f.id}" th:text="${f.nomeFantasia}">Fornecedor</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="precoCusto">Preço de Custo (R$)</label>
+                                    <input type="text" class="form-control" id="precoCusto" name="precoCusto" 
+                                           placeholder="0,00" required data-mask="#.##0,00" data-mask-reverse="true" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
                                     <label for="notaFiscal">Nota Fiscal</label>
                                     <input type="text" class="form-control" id="notaFiscal" name="notaFiscal" required />
                                 </div>
@@ -72,7 +86,10 @@
                         <h5 class="card-title">Estoque Atual</h5>
                     </div>
                     <div class="card-body">
-                        <table class="table table-striped table-hover">
+                        <div th:if="${#lists.isEmpty(estoques)}" class="alert alert-info">
+                            Nenhum produto em estoque encontrado.
+                        </div>
+                        <table th:if="${not #lists.isEmpty(estoques)}" class="table table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th>Produto</th>
@@ -85,7 +102,7 @@
                                 <tr th:each="estoque : ${estoques}">
                                     <td th:text="${estoque.produto.descricao}">Produto</td>
                                     <td th:text="${estoque.quantidade}">0</td>
-                                    <td th:text="${#temporals.format(estoque.ultimaMovimentacao, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                    <td th:text="${estoque.ultimaMovimentacao != null ? #temporals.format(estoque.ultimaMovimentacao, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2024</td>
                                     <td>
                                         <a class="btn btn-info btn-sm" th:href="@{/estoque/historico/{id}(id=${estoque.produto.id})}" 
                                            title="Histórico de Movimentações">
@@ -106,12 +123,16 @@
     <script src="/vendor/bootstrap/jquery-3.3.1.slim.min.js"></script>
     <script src="/vendor/bootstrap/popper.min.js"></script>
     <script src="/vendor/bootstrap/bootstrap.min.js"></script>
+    <script src="/vendor/jquery-mask/jquery.mask.min.js"></script>
     <script>
         // Define a data atual como valor padrão
         document.addEventListener('DOMContentLoaded', function() {
             var now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('dataEntrada').value = now.toISOString().slice(0,16);
+            
+            // Inicializa a máscara para o campo de preço
+            $('#precoCusto').mask('#.##0,00', {reverse: true});
         });
     </script>
 </body>

@@ -30,6 +30,7 @@ import xyz.ConstruTec.app.model.Fornecedor;
 import xyz.ConstruTec.app.model.Produto;
 import xyz.ConstruTec.app.service.FornecedorService;
 import xyz.ConstruTec.app.service.ProdutoService;
+import xyz.ConstruTec.app.service.EstoqueService;
 import xyz.ConstruTec.app.util.PaginacaoUtil;
 
 @Controller
@@ -44,6 +45,9 @@ public class ProdutoController {
 	
 	@Autowired
 	private FornecedorService fornecedorService;
+    
+    @Autowired
+    private EstoqueService estoqueService;
 
 	@GetMapping("/cadastrar")
 	public String cadastrar(Produto produto) {
@@ -52,9 +56,19 @@ public class ProdutoController {
 	
 	@GetMapping("/listar")
 	public String listar(ModelMap model, @RequestParam("page") Optional<Integer> page) {
-		
 		int paginaAtual = page.orElse(1);
 		PaginacaoUtil<Produto> pageProduto = produtoService.buscarPorPagina(paginaAtual);
+		
+		// Log para debug
+		System.out.println("Total de registros: " + pageProduto.getTotalDePagina() * pageProduto.getTamanho());
+		System.out.println("Registros na página atual: " + pageProduto.getRegistros().size());
+		System.out.println("Página atual: " + paginaAtual);
+		System.out.println("Total de páginas: " + pageProduto.getTotalDePagina());
+		
+		// Para cada produto, busca a última movimentação
+		pageProduto.getRegistros().forEach(produto -> {
+			produto.setUltimaMovimentacao(estoqueService.buscarUltimaMovimentacao(produto));
+		});
 		
 		model.addAttribute("pageProduto", pageProduto);
 		return "produto/lista";
@@ -62,7 +76,6 @@ public class ProdutoController {
 	
 	@PostMapping("/salvar")
 	public String salvar(@Valid Produto produto, BindingResult result, RedirectAttributes attr, @RequestParam("arquivo") MultipartFile arquivo) throws IOException {
-		
 		//Verifica erros de validação do formulário
 		if (result.hasErrors()) {
 			return "produto/cadastro";
@@ -82,10 +95,40 @@ public class ProdutoController {
 			produto.setFoto("semfoto.png");
 		}
 		
+		produto.setAtivo(true); // Novo produto sempre começa ativo
 		produtoService.salvar(produto);
 		attr.addFlashAttribute("success", "Produto cadastrado com sucesso.");
 		return "redirect:/produtos/cadastrar";
-		
+	}
+	
+	@GetMapping("/inativar/{id}")
+	public String inativar(@PathVariable("id") Long id, RedirectAttributes attr) {
+		try {
+			Produto produto = produtoService.buscarPorId(id);
+			if (produto != null) {
+				produto.setAtivo(false);
+				produtoService.editar(produto);
+				attr.addFlashAttribute("success", "Produto inativado com sucesso.");
+			}
+		} catch (Exception e) {
+			attr.addFlashAttribute("fail", "Erro ao inativar produto.");
+		}
+		return "redirect:/produtos/listar";
+	}
+	
+	@GetMapping("/ativar/{id}")
+	public String ativar(@PathVariable("id") Long id, RedirectAttributes attr) {
+		try {
+			Produto produto = produtoService.buscarPorId(id);
+			if (produto != null) {
+				produto.setAtivo(true);
+				produtoService.editar(produto);
+				attr.addFlashAttribute("success", "Produto ativado com sucesso.");
+			}
+		} catch (Exception e) {
+			attr.addFlashAttribute("fail", "Erro ao ativar produto.");
+		}
+		return "redirect:/produtos/listar";
 	}
 	
 	@GetMapping("/exibeImagem/{imagem}")

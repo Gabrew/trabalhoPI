@@ -42,7 +42,7 @@ public class Fornecedor extends AbstractEntity<Long> {
 	private String informacoes;
 	
 	@OneToMany(mappedBy = "fornecedor")
-	private List<Produto> produtos;
+	private List<MovimentacaoEstoque> movimentacoes;
 
 	public String getNomeFantasia() {
 		return nomeFantasia;
@@ -100,12 +100,12 @@ public class Fornecedor extends AbstractEntity<Long> {
 		this.informacoes = informacoes;
 	}
 
-	public List<Produto> getProdutos() {
-		return produtos;
+	public List<MovimentacaoEstoque> getMovimentacoes() {
+		return movimentacoes;
 	}
 
-	public void setProdutos(List<Produto> produtos) {
-		this.produtos = produtos;
+	public void setMovimentacoes(List<MovimentacaoEstoque> movimentacoes) {
+		this.movimentacoes = movimentacoes;
 	}
 	
 	public String getCelular() {

@@ -2,8 +2,9 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Detalhes da Obra - ConstruTec</title>
-    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/vendor/open-iconic/open-iconic-bootstrap.css">
     <style>
         .card-counter {
@@ -132,6 +133,8 @@
                                     <th>Produto</th>
                                     <th>Quantidade</th>
                                     <th>Última Movimentação</th>
+                                    <th>Fornecedor</th>
+                                    <th>Preço de Custo</th>
                                     <th>Status</th>
                                     <th>Ações</th>
                                 </tr>
@@ -141,6 +144,8 @@
                                     <td th:text="${item.produto.descricao}">Produto</td>
                                     <td th:text="${item.quantidade}">0</td>
                                     <td th:text="${#temporals.format(item.ultimaMovimentacao, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                    <td th:text="${item.fornecedor != null ? item.fornecedor.nomeFantasia : '-'}">Fornecedor</td>
+                                    <td th:text="${item.precoCusto != null ? #numbers.formatDecimal(item.precoCusto, 0, 'POINT', 2, 'COMMA') : '-'}">0,00</td>
                                     <td>
                                         <span th:class="${item.quantidade > 10 ? 'badge badge-success' : 'badge badge-danger'}"
                                               th:text="${item.quantidade > 10 ? 'Normal' : 'Baixo'}">
@@ -173,6 +178,8 @@
                                     <th>Produto</th>
                                     <th>Tipo</th>
                                     <th>Quantidade</th>
+                                    <th>Fornecedor</th>
+                                    <th>Preço de Custo</th>
                                     <th>Origem/Destino</th>
                                     <th>Observação</th>
                                 </tr>
@@ -182,11 +189,12 @@
                                     <td th:text="${#temporals.format(mov.dataMovimentacao, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
                                     <td th:text="${mov.produto.descricao}">Produto</td>
                                     <td>
-                                        <span th:if="${mov.origem == null and mov.destino != null}" class="badge badge-success">Entrada</span>
-                                        <span th:if="${mov.origem != null and mov.destino == null}" class="badge badge-danger">Saída</span>
-                                        <span th:if="${mov.origem != null and mov.destino != null}" class="badge badge-info">Transferência</span>
+                                        <span th:if="${mov.origem == null and mov.destino != null}" class="badge bg-success">Entrada</span>
+                                        <span th:if="${mov.origem != null and mov.destino == null}" class="badge bg-danger">Saída</span>
+                                        <span th:if="${mov.origem != null and mov.destino != null}" class="badge bg-info">Transferência</span>
                                     </td>
-                                    <td th:text="${mov.quantidade}">0</td>
+                                    <td th:text="${mov.fornecedor != null ? mov.fornecedor.nomeFantasia : '-'}">Fornecedor</td>
+                                    <td th:text="${mov.precoCusto != null ? #numbers.formatDecimal(mov.precoCusto, 0, 'POINT', 2, 'COMMA') : '-'}">0,00</td>
                                     <td>
                                         <span th:if="${mov.origem == null}">Matriz → Obra</span>
                                         <span th:if="${mov.destino == null}">Obra → Matriz</span>
@@ -201,14 +209,162 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Botão para abrir o modal -->
+                <div class="text-right mb-3">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalLancarProduto">
+                        <i class="oi oi-plus"></i> Lançar Produto
+                    </button>
+                </div>
+
+                <!-- Modal de Lançamento de Produtos -->
+                <div class="modal fade" id="modalLancarProduto" tabindex="-1" role="dialog" aria-labelledby="modalLancarProdutoLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalLancarProdutoLabel">Lançar Produto na Obra</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form th:action="@{/obras/lancar-produto}" method="post" id="formLancarProduto" th:object="${lancamentoProdutoDTO}">
+                                    <input type="hidden" th:field="*{obraId}" th:value="${obra.id}" />
+                                    
+                                    <div class="mb-3">
+                                        <label for="produtoId" class="form-label">Produto</label>
+                                        <select class="form-select" th:field="*{produtoId}" required onchange="verificarEstoque()">
+                                            <option value="">Selecione um produto</option>
+                                            <option th:each="p : ${produtos}" 
+                                                    th:value="${p.id}" 
+                                                    th:text="${p.descricao}"
+                                                    th:data-estoque="${p.estoque != null ? p.estoque.quantidade : 0}">
+                                                    Produto
+                                            </option>
+                                        </select>
+                                        <small class="text-muted" id="estoqueDisponivel"></small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="quantidade" class="form-label">Quantidade</label>
+                                        <input type="number" class="form-control" th:field="*{quantidade}" 
+                                               min="1" required onchange="verificarEstoque()" />
+                                        <div class="invalid-feedback" id="quantidadeInvalida">
+                                            Quantidade maior que o estoque disponível
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="fornecedorId" class="form-label">Fornecedor</label>
+                                        <select class="form-select" th:field="*{fornecedorId}" required>
+                                            <option value="">Selecione um fornecedor</option>
+                                            <option th:each="f : ${fornecedores}" 
+                                                    th:value="${f.id}" 
+                                                    th:text="${f.nomeFantasia}">Fornecedor</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="precoCusto" class="form-label">Preço de Custo</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">R$</span>
+                                            <input type="number" class="form-control" th:field="*{precoCusto}" 
+                                                   min="0.01" step="0.01" required />
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="dataRetirada" class="form-label">Data</label>
+                                        <input type="date" class="form-control" th:field="*{dataRetirada}" 
+                                               th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required />
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary" id="btnLancar">Lançar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Script para validação de estoque -->
+                <script th:inline="javascript">
+                    function verificarEstoque() {
+                        const produtoSelect = document.getElementById('produtoId');
+                        const quantidadeInput = document.getElementById('quantidade');
+                        const btnLancar = document.getElementById('btnLancar');
+                        const estoqueDisponivel = document.getElementById('estoqueDisponivel');
+                        const quantidadeInvalida = document.getElementById('quantidadeInvalida');
+                        
+                        if (produtoSelect.selectedIndex > 0) {
+                            const option = produtoSelect.options[produtoSelect.selectedIndex];
+                            const estoque = parseInt(option.getAttribute('data-estoque'));
+                            const quantidade = parseInt(quantidadeInput.value) || 0;
+                            
+                            estoqueDisponivel.textContent = `Estoque disponível: ${estoque}`;
+                            
+                            if (quantidade > estoque) {
+                                quantidadeInput.classList.add('is-invalid');
+                                quantidadeInvalida.style.display = 'block';
+                                btnLancar.disabled = true;
+                            } else {
+                                quantidadeInput.classList.remove('is-invalid');
+                                quantidadeInvalida.style.display = 'none';
+                                btnLancar.disabled = false;
+                            }
+                        } else {
+                            estoqueDisponivel.textContent = '';
+                            quantidadeInput.classList.remove('is-invalid');
+                            quantidadeInvalida.style.display = 'none';
+                            btnLancar.disabled = false;
+                        }
+                    }
+
+                    // Validação do formulário antes do envio
+                    document.getElementById('formLancarProduto').onsubmit = function(e) {
+                        const produtoSelect = document.getElementById('produtoId');
+                        const quantidadeInput = document.getElementById('quantidade');
+                        const fornecedorSelect = document.getElementById('fornecedorId');
+                        const precoCustoInput = document.getElementById('precoCusto');
+                        
+                        if (!produtoSelect.value) {
+                            alert('Selecione um produto');
+                            e.preventDefault();
+                            return false;
+                        }
+
+                        if (!fornecedorSelect.value) {
+                            alert('Selecione um fornecedor');
+                            e.preventDefault();
+                            return false;
+                        }
+
+                        if (!precoCustoInput.value || precoCustoInput.value <= 0) {
+                            alert('Informe um preço de custo válido');
+                            e.preventDefault();
+                            return false;
+                        }
+
+                        if (produtoSelect.selectedIndex > 0) {
+                            const option = produtoSelect.options[produtoSelect.selectedIndex];
+                            const estoque = parseInt(option.getAttribute('data-estoque'));
+                            const quantidade = parseInt(quantidadeInput.value) || 0;
+                            
+                            if (quantidade > estoque) {
+                                alert('Quantidade maior que o estoque disponível');
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                        return true;
+                    };
+                </script>
             </div>
         </section>
     </main>
 
     <footer th:replace="fragments/footer :: rodape"></footer>
 
-    <script src="/vendor/bootstrap/jquery-3.3.1.slim.min.js"></script>
-    <script src="/vendor/bootstrap/popper.min.js"></script>
-    <script src="/vendor/bootstrap/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> 

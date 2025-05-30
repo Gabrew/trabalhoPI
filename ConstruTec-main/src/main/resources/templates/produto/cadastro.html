@@ -31,7 +31,7 @@
                                 <label for="codigo">Código</label>
                                 <input type="number" class="form-control" id="codigo" readonly>
                               </div>
-                              <div class="col-md-8">
+                              <div class="col-md-10">
                                 <label for="descricao">Descrição</label>
                                 <input type="text" class="form-control" id="descricao" 
                                 placeholder="Bomba de óleo..." th:field="*{descricao}" th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'">
@@ -39,15 +39,9 @@
 										<span th:errors="*{descricao}"></span>
 		                        	</div>
                               </div>
-                              
-                               <div class="col-md-2">
-                                <label for="descricao">Referência</label>
-                                <input type="text" class="form-control" id="referencia" th:field="*{referencia}">
-                              </div>
-                              
                             </div>
                             <div class="form-row mt-2">
-                              <div class="col-md-4">
+                              <div class="col-md-9">
                                 <label for="categoria">Categoria</label>
                                 <select class="form-control" id="categoria" th:field="*{categoria}" th:classappend="${#fields.hasErrors('categoria')} ? 'is-invalid'">
                                   <option value="">Selecione...</option>
@@ -57,16 +51,6 @@
 											<span th:errors="*{categoria}"></span>
 			                        </div>
                               </div>
-                              <div class="col-md-5">
-                                <label for="fornecedor">Fornecedor</label>
-                                <select class="form-control" id="fornecedor" th:field="*{fornecedor}" th:classappend="${#fields.hasErrors('fornecedor')} ? 'is-invalid'">
-                                  <option value="">Selecione...</option>
-                                  <option th:each="forn : ${fornecedores}" th:value="${forn.id}" th:text="${forn.nomeFantasia}">Brasil Peças Importados</option>
-                                </select>
-	                                <div class="invalid-feedback">
-											<span th:errors="*{fornecedor}"></span>
-			                        </div>
-                              </div>
                               <div class="col-md-3 mt-2">
                               	<label for="arquivo">Imagem</label>
     							<input type="file" class="form-control-file" id="arquivo" name="arquivo"  accept=".jpg, .jpeg">
@@ -74,73 +58,35 @@
                               </div>
                             </div>
                             <div class="form-row mt-2">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <label for="fabricante">Fabricante</label>
                                     <input type="text" class="form-control" id="fabricante" placeholder="Balucias..." th:field="*{fabricante}" th:classappend="${#fields.hasErrors('fabricante')} ? 'is-invalid'">
                                 	<div class="invalid-feedback">
 										<span th:errors="*{fabricante}"></span>
 		                        	</div>
                                 </div>
-                                <div class="col-md-2">
-                                    <label for="preco_custo">Preço Custo</label>
-                                    <input type="text" class="form-control" data-mask="#.##0,00" data-mask-reverse="true" id="precoCusto" placeholder="R$ 120,00" th:field="*{precoCusto}" th:classappend="${#fields.hasErrors('precoCusto')} ? 'is-invalid'">
-                                	<div class="invalid-feedback">
-										<span th:errors="*{precoCusto}"></span>
-		                        	</div>
-                                </div>
-                                <div class="col-md-2">
-                                    <label for="preco_venda">Preço Venda</label>
-                                    <input type="text" class="form-control" data-mask="#.##0,00" data-mask-reverse="true" id="precoVenda" placeholder="R$ 120,00" th:field="*{precoVenda}" th:classappend="${#fields.hasErrors('precoVenda')} ? 'is-invalid'">
-                                	<div class="invalid-feedback">
-										<span th:errors="*{precoVenda}"></span>
-		                        	</div>
-                                </div>
-                                <div class="col-md-2">
-                                    <label for="quantidade">Quantidade</label>
-                                    <input type="number" class="form-control" id="quantidade" placeholder="10" th:field="*{quantidade}" th:classappend="${#fields.hasErrors('quantidade')} ? 'is-invalid'">
-                                	<div class="invalid-feedback">
-										<span th:errors="*{quantidade}"></span>
-		                        	</div>
-                                </div>
                             </div>
                             <div class="form-group mt-2">
                                 <label for="informacoes">Informações adicionais</label>
-                                <textarea class="form-control" id="informacoes" rows="3" th:field="*{informacoes}"></textarea>
-                              </div>
-                              <input type="hidden" id="id" th:field="*{id}"/>
-                              <input type="hidden" id="id" th:field="*{foto}"/>
+                                <textarea class="form-control" id="informacoes" rows="3" th:field="*{informacoes}" placeholder="Referência do produto e outras informações relevantes"></textarea>
+                            </div>
+                            <input type="hidden" id="id" th:field="*{id}"/>
+                            <input type="hidden" id="id" th:field="*{foto}"/>
                             <div class="form-row mt-4">
                                 <div class="col-md-3 col-xs-12">
                                     <button type="submit" class="btn btn-primary" style="width: 100%; height: 50px; font-weight: bold;">Cadastrar</button>
                                 </div>
                             </div>
-                          </form>
+                        </form>
                     </div>
-
                 </div>
             </section>
         </div>      
     </main>
 
-	<footer th:replace="fragments/footer :: rodape"></footer>    
-    <!-- JavaScript (Opcional) -->
-    <!-- jQuery primeiro, depois Popper.js, depois Bootstrap JS -->
-    <script src="/vendor/bootstrap/jquery-3.1.0.js"></script>
-    <script th:src="@{/webjars/jquery-mask-plugin/dist/jquery.mask.min.js}"></script>
+    <script src="/vendor/bootstrap/jquery-3.3.1.slim.min.js"></script>
     <script src="/vendor/bootstrap/popper.min.js"></script>
     <script src="/vendor/bootstrap/bootstrap.min.js"></script>
-    
-    <script type="text/javascript">
-    $(document).ready(function(){
-		//Ocultar alert
-		setTimeout(function(){
-			$(".alert").fadeOut("slow", function(){
-				$(this).alert('close');
-			});
-		}, 5000);
-		
-	});
-    </script>
-    
+    <script src="/vendor/jquery-mask/jquery.mask.min.js"></script>
   </body>
 </html>
