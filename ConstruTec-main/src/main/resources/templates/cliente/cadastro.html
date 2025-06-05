@@ -7,7 +7,23 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css">
     <title>Controle de Estoque</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+        
+        footer {
+            margin-top: auto;
+        }
+    </style>
   </head>
   <body>
     
@@ -25,7 +41,7 @@
                     	<div th:replace="fragments/alert"></div>
                     	
                         <form th:action="${cliente.id == null} ? @{/clientes/salvar} : @{/clientes/editar}" method="POST" th:object="${cliente}">
-                            <div class="form-row mt-2">
+                            <div class="row mt-2">
                               <div class="col-md-2">
                                 <label for="codigo">Código</label>
                                 <input type="number" class="form-control" id="codigo" readonly>
@@ -48,16 +64,16 @@
                               </div>
                             </div>
                             
-                            <div class="form-row mt-2">
-                              <div class="col-md-5">
+                            <div class="row mt-2">
+                              <div class="col-md-4">
                                 <label for="descricao">RG</label>
-                                <input type="text" class="form-control" id="rg" data-mask="000000000000-0"
+                                <input type="text" class="form-control" id="rg" data-mask="00.000.000-0"
                                 placeholder="" th:field="*{rg}" th:classappend="${#fields.hasErrors('rg')} ? 'is-invalid'">
 	                              	<div class="invalid-feedback">
 										<span th:errors="*{rg}"></span>
 		                        	</div>
                               </div>
-                               <div class="col-md-5">
+                              <div class="col-md-4">
                                 <label for="descricao">CPF</label>
                                 <input type="text" class="form-control" id="cpf" data-mask="000.000.000-00"
                                 placeholder="" th:field="*{cpf}" th:classappend="${#fields.hasErrors('cpf')} ? 'is-invalid'">
@@ -65,7 +81,7 @@
 										<span th:errors="*{cpf}"></span>
 		                        	</div>
                               </div>
-                              <div class="col-md-2">
+                              <div class="col-md-4">
                                 <label for="descricao">Data Nascimento</label>
                                 <input type="date" class="form-control" id="dataNascimento"
                                 placeholder="" th:field="*{dataNascimento}" th:classappend="${#fields.hasErrors('dataNascimento')} ? 'is-invalid'">
@@ -75,7 +91,7 @@
                               </div>
                             </div>
                             
-                             <div class="form-row mt-2">
+                            <div class="row mt-2">
                               <div class="col-md-4">
                                 <label for="descricao">Celular</label>
                                 <input type="text" class="form-control" id="celular" data-mask="(00) 00000-0000"
@@ -84,7 +100,7 @@
 										<span th:errors="*{celular}"></span>
 		                        	</div>
                               </div>
-                               <div class="col-md-5">
+                              <div class="col-md-5">
                                 <label for="descricao">E-mail</label>
                                 <input type="email" class="form-control" id="email" 
                                 placeholder="" th:field="*{email}" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
@@ -102,34 +118,7 @@
                               </div>
                             </div>
                             
-                            <div class="form-row mt-2">
-                              <div class="col-md-5">
-                                <label for="descricao">Cidade</label>
-                                <input type="text" class="form-control" id="cidade" 
-                                placeholder="" th:field="*{endereco.cidade}" th:classappend="${#fields.hasErrors('endereco.cidade')} ? 'is-invalid'">
-	                              	<div class="invalid-feedback">
-										<span th:errors="*{endereco.cidade}"></span>
-		                        	</div>
-                              </div>
-                               <div class="col-md-5">
-                                <label for="descricao">Logradouro</label>
-                                <input type="text" class="form-control" id="logradouro"
-                                placeholder="" th:field="*{endereco.logradouro}" th:classappend="${#fields.hasErrors('endereco.logradouro')} ? 'is-invalid'">
-	                              	<div class="invalid-feedback">
-										<span th:errors="*{endereco.logradouro}"></span>
-		                        	</div>
-                              </div>
-                              <div class="col-md-2">
-                                <label for="descricao">Número</label>
-                                <input type="number" class="form-control" id="numero"
-                                placeholder="" th:field="*{endereco.numero}" th:classappend="${#fields.hasErrors('endereco.numero')} ? 'is-invalid'">
-	                              	<div class="invalid-feedback">
-										<span th:errors="*{endereco.numero}"></span>
-		                        	</div>
-                              </div>
-                            </div>
-                            
-                            <div class="form-row mt-3">
+                            <div class="row mt-2">
                               <div class="col-md-5">
                                 <label for="descricao">Complemento</label>
                                 <input type="text" class="form-control" id="complemento" 
@@ -138,9 +127,9 @@
 										<span th:errors="*{endereco.complemento}"></span>
 		                        	</div>
                               </div>
-                               <div class="col-md-4">
+                              <div class="col-md-4">
                                 <label for="descricao">Bairro</label>
-                                <input type="text" class="form-control" id="bairro"
+                                <input type="text" class="form-control" id="bairro" required
                                 placeholder="" th:field="*{endereco.bairro}" th:classappend="${#fields.hasErrors('endereco.bairro')} ? 'is-invalid'">
 	                              	<div class="invalid-feedback">
 										<span th:errors="*{endereco.bairro}"></span>
@@ -148,7 +137,7 @@
                               </div>
                               <div class="col-md-3">
                                 <label for="categoria">UF</label>
-                                <select class="form-control" id="uf" th:field="*{endereco.uf}" th:classappend="${#fields.hasErrors('endereco.uf')} ? 'is-invalid'">
+                                <select class="form-control" id="uf" th:field="*{endereco.uf}" required th:classappend="${#fields.hasErrors('endereco.uf')} ? 'is-invalid'">
                                   <option value="">Selecione...</option>
                                   <option th:each="uf : ${ufs}" th:value="${uf}" th:text="${uf.descricao}">Novo</option>
                                 </select>
@@ -156,22 +145,51 @@
 											<span th:errors="*{endereco.uf}"></span>
 			                        </div>
                               </div>
-                               
                             </div>
                             
-                            <div class="form-group mt-2">
-                                <label for="informacoes">Informações adicionais</label>
-                                <textarea class="form-control" id="informacoes" rows="3" th:field="*{informacoes}"></textarea>
+                            <div class="row mt-2">
+                              <div class="col-md-6">
+                                <label for="logradouro">Logradouro</label>
+                                <input type="text" class="form-control" id="logradouro" required
+                                placeholder="" th:field="*{endereco.logradouro}" th:classappend="${#fields.hasErrors('endereco.logradouro')} ? 'is-invalid'">
+                                <div class="invalid-feedback">
+                                    <span th:errors="*{endereco.logradouro}"></span>
+                                </div>
                               </div>
-                              <input type="hidden" id="id" th:field="*{id}"/>
-                            <div class="form-row mt-4">
+                              <div class="col-md-2">
+                                <label for="numero">Número</label>
+                                <input type="text" class="form-control" id="numero" required
+                                placeholder="" th:field="*{endereco.numero}" th:classappend="${#fields.hasErrors('endereco.numero')} ? 'is-invalid'">
+                                <div class="invalid-feedback">
+                                    <span th:errors="*{endereco.numero}"></span>
+                                </div>
+                              </div>
+                              <div class="col-md-4">
+                                <label for="cidade">Cidade</label>
+                                <input type="text" class="form-control" id="cidade" required
+                                placeholder="" th:field="*{endereco.cidade}" th:classappend="${#fields.hasErrors('endereco.cidade')} ? 'is-invalid'">
+                                <div class="invalid-feedback">
+                                    <span th:errors="*{endereco.cidade}"></span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div class="row mt-2">
+                                <div class="col-md-12">
+                                    <label for="informacoes">Informações adicionais</label>
+                                    <textarea class="form-control" id="informacoes" rows="3" th:field="*{informacoes}"></textarea>
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" id="id" th:field="*{id}"/>
+                            
+                            <div class="row mt-4">
                                 <div class="col-md-3 col-xs-12">
                                     <button type="submit" class="btn btn-primary" style="width: 100%; height: 50px; font-weight: bold;">Cadastrar</button>
                                 </div>
                             </div>
                           </form>
                     </div>
-
                 </div>
             </section>
         </div>      
@@ -180,22 +198,228 @@
 	<footer th:replace="fragments/footer :: rodape"></footer>    
     <!-- JavaScript (Opcional) -->
     <!-- jQuery primeiro, depois Popper.js, depois Bootstrap JS -->
-    <script src="/vendor/bootstrap/jquery-3.1.0.js"></script>
-    <script th:src="@{/webjars/jquery-mask-plugin/dist/jquery.mask.min.js}"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script src="/vendor/bootstrap/popper.min.js"></script>
     <script src="/vendor/bootstrap/bootstrap.min.js"></script>
     
     <script type="text/javascript">
     $(document).ready(function(){
-		//Ocultar alert
-		setTimeout(function(){
-			$(".alert").fadeOut("slow", function(){
-				$(this).alert('close');
-			});
-		}, 5000);
-		
-	});
+        // Função para aplicar máscara com feedback visual e validação
+        function aplicarMascara(campo, mascara, padrao) {
+            $(campo).mask(mascara, {
+                clearIfNotMatch: true,
+                placeholder: mascara.replace(/[09]/g, '_'),
+                onChange: function(value, e) {
+                    var input = $(e.target);
+                    var valorLimpo = value.replace(/[^0-9]/g, '');
+                    
+                    // Validação específica para CEP
+                    if (campo === '#cep') {
+                        if (valorLimpo.length === 8) {
+                            input.addClass('is-valid').removeClass('is-invalid');
+                        } else if (value) {
+                            input.addClass('is-invalid').removeClass('is-valid');
+                        } else {
+                            input.removeClass('is-valid is-invalid');
+                        }
+                        return;
+                    }
+                    
+                    // Validação para outros campos
+                    if (value && padrao.test(value) && valorLimpo.length === (campo === '#rg' ? 9 : campo === '#cpf' ? 11 : 11)) {
+                        input.addClass('is-valid').removeClass('is-invalid');
+                    } else if (value) {
+                        input.addClass('is-invalid').removeClass('is-valid');
+                    } else {
+                        input.removeClass('is-valid is-invalid');
+                    }
+                }
+            });
+        }
+
+        // Padrões de validação
+        var padraoRG = /^\d{2}\.\d{3}\.\d{3}-[0-9]$/;
+        var padraoCPF = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+        var padraoCelular = /^\(\d{2}\)\s\d{5}-\d{4}$/;
+        var padraoCEP = /^\d{5}-\d{3}$/;
+
+        // Aplicando máscaras com validação
+        aplicarMascara('#rg', '00.000.000-0', padraoRG);
+        aplicarMascara('#cpf', '000.000.000-00', padraoCPF);
+        aplicarMascara('#celular', '(00) 00000-0000', padraoCelular);
+        aplicarMascara('#cep', '00000-000', padraoCEP);
+
+        // Validação da Data de Nascimento
+        $('#dataNascimento').on('change', function() {
+            var input = $(this);
+            var data = input.val();
+            var hoje = new Date();
+            var dataNascimento = new Date(data);
+            
+            if (data && dataNascimento < hoje) {
+                input.addClass('is-valid').removeClass('is-invalid');
+            } else {
+                input.addClass('is-invalid').removeClass('is-valid');
+            }
+        });
+
+        // Validação do UF
+        $('#uf').on('change', function() {
+            var select = $(this);
+            if (select.val()) {
+                select.addClass('is-valid').removeClass('is-invalid');
+            } else {
+                select.addClass('is-invalid').removeClass('is-valid');
+            }
+        });
+
+        // Validações de tamanho máximo com feedback visual
+        function limitarTamanho(campo, tamanho) {
+            $(campo).attr('maxlength', tamanho).on('input', function() {
+                var input = $(this);
+                if (input.val().length > 0) {
+                    input.addClass('is-valid').removeClass('is-invalid');
+                } else {
+                    input.removeClass('is-valid').removeClass('is-invalid');
+                }
+            });
+        }
+
+        limitarTamanho('#nome', 100);
+        limitarTamanho('#sobrenome', 100);
+        limitarTamanho('#email', 100);
+        limitarTamanho('#complemento', 60);
+        limitarTamanho('#bairro', 60);
+
+        // Validação de email
+        $('#email').on('input', function() {
+            var input = $(this);
+            var email = input.val();
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email && emailRegex.test(email)) {
+                input.addClass('is-valid').removeClass('is-invalid');
+            } else if (email) {
+                input.addClass('is-invalid').removeClass('is-valid');
+            } else {
+                input.removeClass('is-valid').removeClass('is-invalid');
+            }
+        });
+
+        // Busca de CEP com feedback visual
+        $('#cep').on('blur', function() {
+            var input = $(this);
+            const cep = input.val().replace(/\D/g, '');
+            
+            if (cep.length === 8) {
+                input.prop('disabled', true);
+                $.get(`https://viacep.com.br/ws/${cep}/json/`)
+                    .done(function(data) {
+                        if (!data.erro) {
+                            $('#logradouro').val(data.logradouro).addClass('is-valid');
+                            $('#bairro').val(data.bairro).addClass('is-valid');
+                            $('#cidade').val(data.localidade).addClass('is-valid');
+                            $('#uf').val(data.uf).addClass('is-valid').trigger('change');
+                            input.addClass('is-valid').removeClass('is-invalid');
+                        } else {
+                            input.addClass('is-invalid').removeClass('is-valid');
+                            alert('CEP não encontrado. Por favor, preencha o endereço manualmente.');
+                        }
+                    })
+                    .fail(function() {
+                        input.addClass('is-invalid').removeClass('is-valid');
+                        alert('Erro ao buscar o CEP. Por favor, preencha o endereço manualmente.');
+                    })
+                    .always(function() {
+                        input.prop('disabled', false);
+                    });
+            }
+        });
+
+        // Validação do formulário antes do envio
+        $('form').on('submit', function(e) {
+            var form = $(this);
+            var isValid = true;
+
+            // Validar campos obrigatórios
+            form.find('input[required], select[required]').each(function() {
+                var input = $(this);
+                if (!input.val()) {
+                    input.addClass('is-invalid');
+                    isValid = false;
+                }
+            });
+
+            // Validar formato do CPF
+            var cpf = $('#cpf').val().replace(/\D/g, '');
+            if (cpf.length !== 11) {
+                $('#cpf').addClass('is-invalid');
+                isValid = false;
+            }
+
+            // Validar formato do RG
+            var rg = $('#rg').val().replace(/\D/g, '');
+            if (rg.length !== 9) {
+                $('#rg').addClass('is-invalid');
+                isValid = false;
+            }
+
+            // Validar formato do celular
+            var celular = $('#celular').val().replace(/\D/g, '');
+            if (celular && celular.length !== 11) {
+                $('#celular').addClass('is-invalid');
+                isValid = false;
+            }
+
+            // Validar campos do endereço
+            if (!$('#logradouro').val() || !$('#numero').val() || !$('#bairro').val() || !$('#cidade').val() || !$('#uf').val()) {
+                isValid = false;
+                alert('Por favor, preencha todos os campos do endereço.');
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Por favor, preencha todos os campos obrigatórios corretamente.');
+            }
+        });
+
+        // Ocultar alertas após 5 segundos
+        setTimeout(function(){
+            $(".alert").fadeOut("slow", function(){
+                $(this).alert('close');
+            });
+        }, 5000);
+    });
     </script>
+    
+    <style>
+    .form-control.is-valid, .form-select.is-valid {
+        border-color: #28a745;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+        padding-right: calc(1.5em + .75rem) !important;
+    }
+
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23dc3545' viewBox='-2 -2 7 7'%3e%3cpath stroke='%23dc3545' d='M0 0l3 3m0-3L0 3'/%3e%3ccircle r='.5'/%3e%3ccircle cx='3' r='.5'/%3e%3ccircle cy='3' r='.5'/%3e%3ccircle cx='3' cy='3' r='.5'/%3e%3c/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+        padding-right: calc(1.5em + .75rem) !important;
+    }
+
+    input[type="date"].form-control.is-valid {
+        background-position: right .75rem center;
+    }
+
+    input[type="date"].form-control.is-invalid {
+        background-position: right .75rem center;
+    }
+    </style>
     
   </body>
 </html>

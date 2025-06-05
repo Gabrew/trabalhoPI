@@ -1,8 +1,8 @@
 package xyz.ConstruTec.app.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -15,43 +15,56 @@ import xyz.ConstruTec.app.service.UsuarioService;
 
 @Configuration
 @EnableWebSecurity
-public class WebConfigSecurity extends WebSecurityConfigurerAdapter{
+public class WebConfigSecurity extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private UsuarioService usuarioService;
+
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
 		.authorizeRequests()
-		.antMatchers("/js/**").permitAll()
-		.antMatchers("/css/**").permitAll()
-		.antMatchers("/images/**").permitAll()
-		.antMatchers("/vendor/**").permitAll()
-		.antMatchers(HttpMethod.GET, "/clientes/cadastrar").authenticated()
-		.antMatchers(HttpMethod.GET, "/fornecedores/cadastrar").authenticated()
-		.antMatchers(HttpMethod.GET, "/produtos/cadastrar").authenticated()
+		.antMatchers("/login").permitAll()
+		.antMatchers("/js/**", "/css/**", "/images/**", "/vendor/**", "/webjars/**").permitAll()
+		.antMatchers("/static/**").permitAll()
+		.antMatchers("/templates/**").permitAll()
+		.antMatchers("/fragments/**").permitAll()
+		.antMatchers("/charts/**").permitAll()
+		.antMatchers("/mapa/**").permitAll()
 		.anyRequest().authenticated()
-		.and().formLogin().loginPage("/login").permitAll()
-		.defaultSuccessUrl("/")
+		.and()
+		.formLogin()
+		.loginPage("/login")
+		.defaultSuccessUrl("/", true)
 		.failureUrl("/login?error=true")
-		.and().logout().logoutSuccessUrl("/login")
-		.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+		.permitAll()
+		.and()
+		.logout()
+		.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+		.logoutSuccessUrl("/login")
+		.permitAll();
 	}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(usuarioService).passwordEncoder(new BCryptPasswordEncoder());
-		auth.inMemoryAuthentication().passwordEncoder(new BCryptPasswordEncoder())
-		.withUser("Admin")
-		.password("$2a$10$eey8GKJmXt7OkOgr2FySCuOXJw8KqlHBMkkxbY.wa3Q5Y4kMkFSOi")
-		.roles("ADMIN");
-
+		auth.userDetailsService(usuarioService)
+			.passwordEncoder(passwordEncoder());
 	}
 	
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/resources/**", "/static/**");
+		web.ignoring()
+		.antMatchers("/resources/**")
+		.antMatchers("/static/**")
+		.antMatchers("/css/**")
+		.antMatchers("/js/**")
+		.antMatchers("/images/**")
+		.antMatchers("/vendor/**")
+		.antMatchers("/webjars/**");
 	}
-
 }

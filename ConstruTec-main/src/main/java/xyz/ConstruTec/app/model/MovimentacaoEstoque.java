@@ -2,6 +2,7 @@ package xyz.ConstruTec.app.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -9,41 +10,53 @@ import org.springframework.format.annotation.NumberFormat;
 import org.springframework.format.annotation.NumberFormat.Style;
 
 @Entity
-@Table(name = "MOVIMENTACOES_ESTOQUE")
+@Table(name = "movimentacoes_estoque")
 public class MovimentacaoEstoque extends AbstractEntity<Long> {
     
-    @ManyToOne
-    @JoinColumn(name = "produto_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "produto_id")
     @NotNull(message = "O produto é obrigatório")
     private Produto produto;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "origem_id")
     private Obra origem; // null significa que é da matriz
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "destino_id")
     private Obra destino; // null significa que é para matriz
     
     @NotNull(message = "A quantidade é obrigatória")
+    @Positive(message = "A quantidade deve ser maior que zero")
     @Column(nullable = false)
     private Integer quantidade;
-    
-    @NotNull(message = "Informe o preço de custo.")
-    @NumberFormat(style = Style.CURRENCY, pattern = "#,##0.00")
-    @Column(name = "preco_custo", nullable = false, columnDefinition = "DECIMAL(7,2) DEFAULT 0.00")
-    private BigDecimal precoCusto;
-    
-    @NotNull(message = "Selecione um fornecedor.")
-    @ManyToOne
-    @JoinColumn(name = "fornecedor_id", nullable = false)
-    private Fornecedor fornecedor;
     
     @Column(name = "data_movimentacao", nullable = false)
     private LocalDateTime dataMovimentacao;
     
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "fornecedor_id")
+    private Fornecedor fornecedor;
+    
+    @NumberFormat(style = Style.CURRENCY, pattern = "#,##0.00")
+    @Column(name = "preco_custo", precision = 10, scale = 2, nullable = false, columnDefinition = "DECIMAL(10,2) DEFAULT 0.00")
+    private BigDecimal precoCusto;
+    
     @Column(name = "observacao")
     private String observacao;
+    
+    @PrePersist
+    private void prePersist() {
+        if (dataMovimentacao == null) {
+            dataMovimentacao = LocalDateTime.now();
+        }
+        if (precoCusto == null) {
+            precoCusto = BigDecimal.ZERO;
+        }
+        if (quantidade == null) {
+            quantidade = 0;
+        }
+    }
     
     public Produto getProduto() {
         return produto;
@@ -77,12 +90,12 @@ public class MovimentacaoEstoque extends AbstractEntity<Long> {
         this.quantidade = quantidade;
     }
     
-    public BigDecimal getPrecoCusto() {
-        return precoCusto;
+    public LocalDateTime getDataMovimentacao() {
+        return dataMovimentacao;
     }
     
-    public void setPrecoCusto(BigDecimal precoCusto) {
-        this.precoCusto = precoCusto;
+    public void setDataMovimentacao(LocalDateTime dataMovimentacao) {
+        this.dataMovimentacao = dataMovimentacao;
     }
     
     public Fornecedor getFornecedor() {
@@ -93,12 +106,12 @@ public class MovimentacaoEstoque extends AbstractEntity<Long> {
         this.fornecedor = fornecedor;
     }
     
-    public LocalDateTime getDataMovimentacao() {
-        return dataMovimentacao;
+    public BigDecimal getPrecoCusto() {
+        return precoCusto;
     }
     
-    public void setDataMovimentacao(LocalDateTime dataMovimentacao) {
-        this.dataMovimentacao = dataMovimentacao;
+    public void setPrecoCusto(BigDecimal precoCusto) {
+        this.precoCusto = precoCusto;
     }
     
     public String getObservacao() {
@@ -107,10 +120,5 @@ public class MovimentacaoEstoque extends AbstractEntity<Long> {
     
     public void setObservacao(String observacao) {
         this.observacao = observacao;
-    }
-    
-    @PrePersist
-    private void prePersist() {
-        dataMovimentacao = LocalDateTime.now();
     }
 } 

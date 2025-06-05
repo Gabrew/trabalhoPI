@@ -4,6 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @SuppressWarnings("serial")
 @Entity
@@ -33,6 +34,9 @@ public class Produto extends AbstractEntity<Long>{
 	
 	@Column(name = "ativo", nullable = false)
 	private boolean ativo = true;
+	
+	@OneToMany(mappedBy = "produto")
+	private List<Estoque> estoques;
 	
 	@Transient
 	private MovimentacaoEstoque ultimaMovimentacao;
@@ -102,6 +106,14 @@ public class Produto extends AbstractEntity<Long>{
 	
 	public void setEstoque(Estoque estoque) {
 		this.estoque = estoque;
+	}
+	
+	public List<Estoque> getEstoques() {
+		return estoques;
+	}
+	
+	public void setEstoques(List<Estoque> estoques) {
+		this.estoques = estoques;
 	}
 	
 	@Override

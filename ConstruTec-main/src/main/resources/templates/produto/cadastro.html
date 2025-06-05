@@ -7,7 +7,42 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css">
     <title>Controle de Estoque</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+        
+        footer {
+            margin-top: auto;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .form-control.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+        }
+
+        .custom-file-label::after {
+            content: "Procurar";
+        }
+    </style>
   </head>
   <body>
     
@@ -26,24 +61,33 @@
                     	
                         <form th:action="${produto.id == null} ? @{/produtos/salvar} : @{/produtos/editar}" method="POST" th:object="${produto}" enctype="multipart/form-data">
                             
-                            <div class="form-row mt-2">
+                            <div class="row mt-2">
                               <div class="col-md-2">
                                 <label for="codigo">Código</label>
-                                <input type="number" class="form-control" id="codigo" readonly>
+                                <input type="text" class="form-control" id="codigo" readonly>
                               </div>
-                              <div class="col-md-10">
+                              <div class="col-md-7">
                                 <label for="descricao">Descrição</label>
                                 <input type="text" class="form-control" id="descricao" 
-                                placeholder="Bomba de óleo..." th:field="*{descricao}" th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'">
+                                placeholder="Bomba de óleo..." th:field="*{descricao}" th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'" required>
 	                              	<div class="invalid-feedback">
 										<span th:errors="*{descricao}"></span>
 		                        	</div>
                               </div>
+                              <div class="col-md-3">
+                                <label for="arquivo">Imagem</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="arquivo" name="arquivo" accept=".jpg, .jpeg">
+                                    <label class="custom-file-label" for="arquivo">Escolher arquivo</label>
+                                </div>
+                                <small class="form-text text-muted">Tamanho máximo 2MB</small>
+                              </div>
                             </div>
-                            <div class="form-row mt-2">
-                              <div class="col-md-9">
+                            
+                            <div class="row mt-2">
+                              <div class="col-md-6">
                                 <label for="categoria">Categoria</label>
-                                <select class="form-control" id="categoria" th:field="*{categoria}" th:classappend="${#fields.hasErrors('categoria')} ? 'is-invalid'">
+                                <select class="form-control" id="categoria" th:field="*{categoria}" th:classappend="${#fields.hasErrors('categoria')} ? 'is-invalid'" required>
                                   <option value="">Selecione...</option>
                                   <option th:each="cat : ${categorias}" th:value="${cat}" th:text="${cat.descricao}">ALVENARIA</option>
                                 </select>
@@ -51,28 +95,26 @@
 											<span th:errors="*{categoria}"></span>
 			                        </div>
                               </div>
-                              <div class="col-md-3 mt-2">
-                              	<label for="arquivo">Imagem</label>
-    							<input type="file" class="form-control-file" id="arquivo" name="arquivo"  accept=".jpg, .jpeg">
-    							<span style="font-size: 10px;">Tamanho máxino 2MB</span>
+                              <div class="col-md-6">
+                                <label for="fabricante">Fabricante</label>
+                                <input type="text" class="form-control" id="fabricante" placeholder="Balucias..." th:field="*{fabricante}" th:classappend="${#fields.hasErrors('fabricante')} ? 'is-invalid'" required>
+                                <div class="invalid-feedback">
+                                    <span th:errors="*{fabricante}"></span>
+                                </div>
                               </div>
                             </div>
-                            <div class="form-row mt-2">
+                            
+                            <div class="row mt-2">
                                 <div class="col-md-12">
-                                    <label for="fabricante">Fabricante</label>
-                                    <input type="text" class="form-control" id="fabricante" placeholder="Balucias..." th:field="*{fabricante}" th:classappend="${#fields.hasErrors('fabricante')} ? 'is-invalid'">
-                                	<div class="invalid-feedback">
-										<span th:errors="*{fabricante}"></span>
-		                        	</div>
+                                    <label for="informacoes">Informações adicionais</label>
+                                    <textarea class="form-control" id="informacoes" rows="3" th:field="*{informacoes}" placeholder="Referência do produto e outras informações relevantes"></textarea>
                                 </div>
                             </div>
-                            <div class="form-group mt-2">
-                                <label for="informacoes">Informações adicionais</label>
-                                <textarea class="form-control" id="informacoes" rows="3" th:field="*{informacoes}" placeholder="Referência do produto e outras informações relevantes"></textarea>
-                            </div>
+                            
                             <input type="hidden" id="id" th:field="*{id}"/>
                             <input type="hidden" id="id" th:field="*{foto}"/>
-                            <div class="form-row mt-4">
+                            
+                            <div class="row mt-4">
                                 <div class="col-md-3 col-xs-12">
                                     <button type="submit" class="btn btn-primary" style="width: 100%; height: 50px; font-weight: bold;">Cadastrar</button>
                                 </div>
@@ -84,9 +126,39 @@
         </div>      
     </main>
 
+    <footer th:replace="fragments/footer :: rodape"></footer>
+
     <script src="/vendor/bootstrap/jquery-3.3.1.slim.min.js"></script>
     <script src="/vendor/bootstrap/popper.min.js"></script>
     <script src="/vendor/bootstrap/bootstrap.min.js"></script>
     <script src="/vendor/jquery-mask/jquery.mask.min.js"></script>
+    <script>
+        // Atualiza o nome do arquivo selecionado no input de imagem
+        $('.custom-file-input').on('change', function() {
+            let fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
+        });
+
+        // Validação do tamanho da imagem
+        document.getElementById('arquivo').addEventListener('change', function() {
+            if (this.files[0].size > 2 * 1024 * 1024) {
+                alert('O arquivo selecionado é muito grande. O tamanho máximo permitido é 2MB.');
+                this.value = '';
+                $('.custom-file-label').html('Escolher arquivo');
+            }
+        });
+
+        // Validação do formulário
+        $('form').on('submit', function(e) {
+            let descricao = $('#descricao').val();
+            let categoria = $('#categoria').val();
+            let fabricante = $('#fabricante').val();
+
+            if (!descricao || !categoria || !fabricante) {
+                e.preventDefault();
+                alert('Por favor, preencha todos os campos obrigatórios.');
+            }
+        });
+    </script>
   </body>
 </html>

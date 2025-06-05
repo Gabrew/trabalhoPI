@@ -1,0 +1,1 @@
+ALTER TABLE estoques MODIFY COLUMN preco_custo DECIMAL(10,2); 

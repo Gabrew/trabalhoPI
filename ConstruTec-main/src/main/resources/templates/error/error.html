@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${errorTitle}">Erro</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container" style="min-height: 450px;">
+            <div class="com-md-12 mt-5">
+                <div class="text-center">
+                    <h1 class="display-4" th:text="${errorTitle}">Erro</h1>
+                    <p class="lead" th:text="${errorMessage}">Ocorreu um erro inesperado.</p>
+                    <hr class="my-4">
+                    <p>Volte para a página inicial ou tente novamente mais tarde.</p>
+                    <a class="btn btn-primary btn-lg" th:href="@{/}" role="button">Página Inicial</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

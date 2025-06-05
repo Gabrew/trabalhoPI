@@ -28,44 +28,39 @@ public class ClienteController {
 	@Autowired
 	private ClienteService clienteService;
 
+	@GetMapping
+	public String index() {
+		return "redirect:/clientes/listar";
+	}
+
 	@GetMapping("/cadastrar")
 	public String cadastrar(Cliente cliente) {
 		return "cliente/cadastro";
 	}
 
+	@GetMapping("/listar")
+	public String listar(ModelMap model, @RequestParam("page") Optional<Integer> page) {
+		int paginaAtual = page.orElse(1);
+		PaginacaoUtil<Cliente> pageCliente = clienteService.buscarPorPagina(paginaAtual);
+		model.addAttribute("pageCliente", pageCliente);
+		return "cliente/lista";
+	}
+
 	@PostMapping("/salvar")
 	public String salvar(@Valid Cliente cliente, BindingResult result, RedirectAttributes attr, ModelMap model) {
-
 		if (result.hasErrors()) {
 			return "cliente/cadastro";
 		}
 
-		Cliente clienteCpf = clienteService.buscarPorCpf(cliente.getCpf());
-		if (clienteCpf != null) {
+		Cliente cliCPF = clienteService.buscarPorCpf(cliente.getCpf());
+		if (cliCPF != null) {
 			model.addAttribute("fail", "Já existe um cliente com o CPF informado.");
-			return "cliente/cadastro";
-		}
-
-		Cliente clienteRg = clienteService.buscarPorRg(cliente.getRg());
-		if (clienteRg != null) {
-			model.addAttribute("fail", "Já existe um cliente com o RG informado.");
 			return "cliente/cadastro";
 		}
 
 		clienteService.salvar(cliente);
 		attr.addFlashAttribute("success", "Cliente cadastrado com sucesso.");
 		return "redirect:/clientes/cadastrar";
-
-	}
-
-	@GetMapping("/listar")
-	public String listar(ModelMap model, @RequestParam("page") Optional<Integer> page) {
-
-		int paginaAtual = page.orElse(1);
-		PaginacaoUtil<Cliente> pageCliente = clienteService.buscarPorPagina(paginaAtual);
-
-		model.addAttribute("pageCliente", pageCliente);
-		return "cliente/lista";
 	}
 
 	@GetMapping("/editar/{id}")
@@ -80,34 +75,24 @@ public class ClienteController {
 			return "cliente/cadastro";
 		}
 
-		Cliente clienteCpf = clienteService.buscarPorCpf(cliente.getCpf());
-		if (clienteCpf != null) {
-			if (clienteCpf.getId() != cliente.getId()) {
-				model.addAttribute("fail", "Já existe um cliente com o CPF informado.");
-				return "cliente/cadastro";
-			}
-		}
-
-		Cliente clienteRg = clienteService.buscarPorRg(cliente.getRg());
-		if (clienteRg != null) {
-			if (clienteRg.getId() != cliente.getId()) {
-				model.addAttribute("fail", "Já existe um cliente com o RG informado.");
-				return "cliente/cadastro";
-			}
+		Cliente cliCPF = clienteService.buscarPorCpf(cliente.getCpf());
+		if (cliCPF != null && cliCPF.getId() != cliente.getId()) {
+			model.addAttribute("fail", "Já existe um cliente com o CPF informado.");
+			return "cliente/cadastro";
 		}
 
 		clienteService.editar(cliente);
 		attr.addFlashAttribute("success", "Cliente alterado com sucesso.");
 		return "redirect:/clientes/cadastrar";
 	}
-	
+
 	@GetMapping("/excluir/{id}")
 	public String excluir(@PathVariable("id") Long id, RedirectAttributes attr) {
 		clienteService.excluir(id);
 		attr.addFlashAttribute("success", "Cliente excluído com sucesso.");
 		return "redirect:/clientes/listar";
 	}
-	
+
 	@GetMapping("/buscar/nome")
 	public String getPorNome(@RequestParam("nome") String nome, ModelMap model, @RequestParam("page") Optional<Integer> page) {
 		int paginaAtual = page.orElse(1);
@@ -115,7 +100,7 @@ public class ClienteController {
 		model.addAttribute("pageCliente", pageCliente);
 		return "cliente/lista";
 	}
-	
+
 	@GetMapping("/buscar/cpf")
 	public String getPorCpf(@RequestParam("cpf") String cpf, ModelMap model, @RequestParam("page") Optional<Integer> page) {
 		int paginaAtual = page.orElse(1);
@@ -125,7 +110,7 @@ public class ClienteController {
 	}
 
 	@ModelAttribute("ufs")
-	public UF[] getUfs() {
+	public UF[] getUFs() {
 		return UF.values();
 	}
 

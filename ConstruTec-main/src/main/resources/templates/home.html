@@ -1,26 +1,490 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
-<meta charset="utf-8">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
   <head>
-    <!-- Meta tags Obrigatórias -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="/vendor/open-iconic/open-iconic-bootstrap.css">
-    <title>ConstruTec</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Estilos customizados -->
+    <style>
+        .card {
+            transition: transform .2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,.1);
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+        .display-4 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        .card-text {
+            margin-bottom: 0;
+        }
+        .ranking-list {
+            list-style: none;
+            padding: 0;
+        }
+        .ranking-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(0,0,0,.125);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+        .ranking-number {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #6c757d;
+            margin-right: 1rem;
+        }
+        .ranking-info {
+            flex-grow: 1;
+        }
+        .ranking-title {
+            margin: 0;
+            font-weight: 500;
+        }
+        .ranking-subtitle {
+            margin: 0;
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        .ranking-value {
+            font-weight: 500;
+            color: #28a745;
+        }
+        .alert-list {
+            list-style: none;
+            padding: 0;
+        }
+        .alert-item {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,.125);
+            transition: background-color .2s;
+        }
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        .alert-item:hover {
+            background-color: rgba(0,0,0,.03);
+        }
+        .alert-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        .alert-message {
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+        .alert-meta {
+            font-size: 0.875rem;
+            color: #adb5bd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .alert-type {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .alert-type.estoque {
+            background-color: #ffeeba;
+            color: #856404;
+        }
+        .alert-type.obra {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .alert-type.entrega {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .alert-type.pagamento {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        #mapaObras {
+            height: 400px;
+            width: 100%;
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        /* Estilos para os marcadores personalizados */
+        .custom-pin {
+            width: 2rem !important;
+            height: 2rem !important;
+            margin-left: -1rem !important;
+            margin-top: -2rem !important;
+            background: transparent !important;
+            border: none !important;
+        }
+        /* Estilos para os popups */
+        .leaflet-popup-content {
+            margin: 13px;
+            min-width: 200px;
+        }
+        .leaflet-popup-content h5 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .leaflet-popup-content .badge {
+            font-size: 0.8rem;
+            padding: 0.35em 0.65em;
+            border-radius: 0.25rem;
+            font-weight: 500;
+        }
+        /* Animação para os marcadores */
+        .custom-pin span {
+            transition: transform 0.2s ease-in-out;
+        }
+        .custom-pin:hover span {
+            transform: rotate(45deg) scale(1.2) !important;
+        }
+    </style>
+    
+    <title>ConstruTec - Dashboard</title>
   </head>
   <body>
+    <div layout:fragment="content">
+        <!-- Conteúdo Principal -->
+        <main class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Início</h1>
+            </div>
+            
+            <!-- Cards principais -->
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card text-white bg-primary h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Clientes</h5>
+                            <p class="card-text">
+                                <span class="display-4" th:text="${home.qtd_cliente}">0</span>
+                            </p>
+                            <p class="small mb-0">Total de clientes cadastrados</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card text-white bg-success h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Produtos</h5>
+                            <p class="card-text">
+                                <span class="display-4" th:text="${home.qtd_produto}">0</span>
+                            </p>
+                            <p class="small mb-0">Total de produtos no sistema</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card text-white bg-warning h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Fornecedores</h5>
+                            <p class="card-text">
+                                <span class="display-4" th:text="${home.qtd_fornecedor}">0</span>
+                            </p>
+                            <p class="small mb-0">Total de fornecedores ativos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card text-white bg-info h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Obras</h5>
+                            <p class="card-text">
+                                <span class="display-4" th:text="${home.qtd_obra}">0</span>
+                            </p>
+                            <p class="small mb-0">Total de obras registradas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <header th:replace="fragments/header :: cabecalho"></header>
+            <!-- Rankings e Alertas -->
+            <div class="row mt-4">
+                <!-- Rankings -->
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="card-title mb-0">Produtos Mais Movimentados</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center" 
+                                            th:each="produto, iterStat : ${home.produtosMaisMovimentados}">
+                                            <div>
+                                                <span class="badge bg-secondary me-2" th:text="${iterStat.count}">1</span>
+                                                <span th:text="${produto.nome}">Nome do Produto</span>
+                                            </div>
+                                            <span class="badge bg-success" th:text="${produto.quantidade}">0</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-warning text-white">
+                                    <h5 class="card-title mb-0">Fornecedores Mais Ativos</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center" 
+                                            th:each="fornecedor, iterStat : ${home.fornecedoresMaisAtivos}">
+                                            <div>
+                                                <span class="badge bg-secondary me-2" th:text="${iterStat.count}">1</span>
+                                                <span th:text="${fornecedor.nome}">Nome do Fornecedor</span>
+                                            </div>
+                                            <span class="badge bg-warning" th:text="${fornecedor.quantidade}">0</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="card-title mb-0">Clientes com Mais Obras</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center" 
+                                            th:each="cliente, iterStat : ${home.clientesComMaisObras}">
+                                            <div>
+                                                <span class="badge bg-secondary me-2" th:text="${iterStat.count}">1</span>
+                                                <span th:text="${cliente.nome}">Nome do Cliente</span>
+                                            </div>
+                                            <span class="badge bg-primary" th:text="${cliente.quantidade}">0</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <main th:replace="fragments/main :: principal"></main>
+                <!-- Alertas -->
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Alertas</h5>
+                            <span class="badge bg-light text-danger" th:text="${home.qtd_alertas_nao_lidos}">0</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" th:each="alerta : ${home.ultimos_alertas}">
+                                    <h6 class="mb-1" th:text="${alerta.titulo}">Título do Alerta</h6>
+                                    <p class="mb-1 text-muted" th:text="${alerta.mensagem}">Mensagem do alerta</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge" th:classappend="${'bg-' + alerta.tipo.toString().toLowerCase()}" 
+                                              th:text="${alerta.tipo}">TIPO</span>
+                                        <small class="text-muted" 
+                                               th:text="${#temporals.format(alerta.dataHora, 'dd/MM/yyyy HH:mm')}">
+                                            01/01/2024 00:00
+                                        </small>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-	<footer th:replace="fragments/footer :: rodape"></footer>
+            <!-- Gráficos -->
+            <div class="row mt-4">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Movimentação de Estoque</h5>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 300px;">
+                                <canvas id="movimentacaoEstoqueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Progresso das Obras</h5>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 300px;">
+                                <canvas id="progressoObrasChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <script src="/vendor/bootstrap/jquery-3.3.1.slim.min.js"></script>
-    <script src="/vendor/bootstrap/popper.min.js"></script>
-    <script src="/vendor/bootstrap/bootstrap.min.js"></script>
-    
+            <!-- Mapa de Obras -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Mapa de Obras</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="mapaObras" style="height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        
+        <!-- Scripts dos Gráficos -->
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                // Carregar gráficos
+                loadChartData();
+                
+                // Inicializar mapa
+                initMap();
+            });
+
+            function loadChartData() {
+                fetch('/charts/movimentacao-estoque')
+                    .then(response => response.json())
+                    .then(data => {
+                        new Chart(document.getElementById('movimentacaoEstoqueChart'), {
+                            type: 'line',
+                            data: data,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: true,
+                                aspectRatio: 2,
+                                plugins: {
+                                    legend: {
+                                        position: 'top'
+                                    }
+                                }
+                            }
+                        });
+                    });
+
+                fetch('/charts/progresso-obras')
+                    .then(response => response.json())
+                    .then(data => {
+                        new Chart(document.getElementById('progressoObrasChart'), {
+                            type: 'doughnut',
+                            data: data,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: true,
+                                aspectRatio: 2,
+                                plugins: {
+                                    legend: {
+                                        position: 'top'
+                                    }
+                                }
+                            }
+                        });
+                    });
+            }
+
+            function initMap() {
+                // Inicializa o mapa centralizando em Patos de Minas
+                const map = L.map('mapaObras').setView([-18.5789, -46.5185], 13);
+
+                // Adiciona o layer do OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                // Cria um grupo para os marcadores e um objeto para os limites do mapa
+                const markers = L.featureGroup();
+                const bounds = L.latLngBounds();
+
+                // Carrega as obras
+                fetch('/obras/mapa/obras')
+                    .then(response => response.json())
+                    .then(obras => {
+                        // Se não houver obras com coordenadas, mantém a visualização padrão
+                        if (obras.length === 0) return;
+
+                        // Adiciona os marcadores para cada obra
+                        obras.forEach(obra => {
+                            if (obra.latitude && obra.longitude) {
+                                // Cria um ícone personalizado baseado no status da obra
+                                const marker = L.marker([obra.latitude, obra.longitude], {
+                                    icon: L.divIcon({
+                                        className: 'custom-pin',
+                                        html: `<span class="oi oi-map-marker" style="font-size: 24px; color: ${obra.cor};"></span>`,
+                                        iconSize: [24, 24],
+                                        iconAnchor: [12, 24],
+                                        popupAnchor: [0, -24]
+                                    })
+                                });
+
+                                // Adiciona o popup com informações da obra
+                                marker.bindPopup(`
+                                    <div style="min-width: 200px;">
+                                        <h5 style="margin-bottom: 8px; color: ${obra.cor};">${obra.titulo}</h5>
+                                        <div style="margin-bottom: 8px;">
+                                            ${obra.descricao}
+                                        </div>
+                                        <span class="badge" style="background-color: ${obra.cor};">
+                                            ${obra.status}
+                                        </span>
+                                    </div>
+                                `);
+
+                                // Adiciona o marcador ao grupo
+                                markers.addLayer(marker);
+
+                                // Adiciona o ponto aos limites do mapa
+                                bounds.extend([obra.latitude, obra.longitude]);
+                            }
+                        });
+
+                        // Adiciona o grupo de marcadores ao mapa
+                        markers.addTo(map);
+
+                        // Ajusta o zoom para mostrar todos os marcadores com padding
+                        if (!bounds.isEmpty()) {
+                            map.fitBounds(bounds, { padding: [50, 50] });
+                        }
+                    })
+                    .catch(error => console.error('Erro ao carregar obras:', error));
+            }
+        </script>
+    </div>
   </body>
 </html>

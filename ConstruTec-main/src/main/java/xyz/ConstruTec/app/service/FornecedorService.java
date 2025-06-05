@@ -56,7 +56,7 @@ public class FornecedorService {
 	
 	@Transactional(readOnly = true)
 	public PaginacaoUtil<Fornecedor> buscarPorPaginaRazaoSocial(String razaoSocial, int pagina) {
-		return dao.findByNomeFantasia(razaoSocial, pagina);
+		return dao.findByRazaoSocial(razaoSocial, pagina);
 	}
 	
 	@Transactional(readOnly = true)

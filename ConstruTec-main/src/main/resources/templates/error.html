@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Erro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}">Header</div>
+
+    <main class="container mt-4">
+        <div class="text-center">
+            <h2>Erro</h2>
+            <p th:if="${erro}" th:text="${erro}" class="alert alert-danger">Mensagem de erro</p>
+            <p th:unless="${erro}" class="alert alert-danger">Ocorreu um erro interno no servidor. Por favor, tente novamente mais tarde.</p>
+            <a href="/" class="btn btn-primary">Voltar para a Página Inicial</a>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}">Footer</div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

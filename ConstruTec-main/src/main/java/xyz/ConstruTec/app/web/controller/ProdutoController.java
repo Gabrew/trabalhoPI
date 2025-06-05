@@ -28,6 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import xyz.ConstruTec.app.model.Categoria;
 import xyz.ConstruTec.app.model.Fornecedor;
 import xyz.ConstruTec.app.model.Produto;
+import xyz.ConstruTec.app.service.CategoriaService;
 import xyz.ConstruTec.app.service.FornecedorService;
 import xyz.ConstruTec.app.service.ProdutoService;
 import xyz.ConstruTec.app.service.EstoqueService;
@@ -44,13 +45,25 @@ public class ProdutoController {
 	private ProdutoService produtoService;
 	
 	@Autowired
+	private CategoriaService categoriaService;
+	
+	@Autowired
 	private FornecedorService fornecedorService;
     
     @Autowired
     private EstoqueService estoqueService;
 
+    @GetMapping
+    public String index() {
+        return "redirect:/produtos/listar";
+    }
+
 	@GetMapping("/cadastrar")
-	public String cadastrar(Produto produto) {
+	public String cadastrar(Produto produto, ModelMap model) {
+		List<Categoria> categorias = categoriaService.buscarTodos();
+		List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
+		model.addAttribute("categorias", categorias);
+		model.addAttribute("fornecedores", fornecedores);
 		return "produto/cadastro";
 	}
 	
@@ -58,6 +71,8 @@ public class ProdutoController {
 	public String listar(ModelMap model, @RequestParam("page") Optional<Integer> page) {
 		int paginaAtual = page.orElse(1);
 		PaginacaoUtil<Produto> pageProduto = produtoService.buscarPorPagina(paginaAtual);
+		List<Categoria> categorias = categoriaService.buscarTodos();
+		List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
 		
 		// Log para debug
 		System.out.println("Total de registros: " + pageProduto.getTotalDePagina() * pageProduto.getTamanho());
@@ -71,31 +86,18 @@ public class ProdutoController {
 		});
 		
 		model.addAttribute("pageProduto", pageProduto);
+		model.addAttribute("categorias", categorias);
+		model.addAttribute("fornecedores", fornecedores);
 		return "produto/lista";
 	}
 	
 	@PostMapping("/salvar")
-	public String salvar(@Valid Produto produto, BindingResult result, RedirectAttributes attr, @RequestParam("arquivo") MultipartFile arquivo) throws IOException {
+	public String salvar(@Valid Produto produto, BindingResult result, RedirectAttributes attr, ModelMap model) {
 		//Verifica erros de validação do formulário
 		if (result.hasErrors()) {
-			return "produto/cadastro";
+			return cadastrar(produto, model);
 		}
 		
-		//Upload da Foto do Produto (Não é obrigatório)
-		if(!arquivo.isEmpty()) {
-			//define o tipo de imagem permitido
-			if (!arquivo.getContentType().equals("image/jpeg")) {
-				attr.addFlashAttribute("fail", "O tipo de imagem selecionado não é permitido.");
-		        return "redirect:/produtos/cadastrar";
-			}
-			
-			String nomeImagem = uploadImagem(arquivo);
-			produto.setFoto(nomeImagem);      
-		} else {
-			produto.setFoto("semfoto.png");
-		}
-		
-		produto.setAtivo(true); // Novo produto sempre começa ativo
 		produtoService.salvar(produto);
 		attr.addFlashAttribute("success", "Produto cadastrado com sucesso.");
 		return "redirect:/produtos/cadastrar";
@@ -103,31 +105,15 @@ public class ProdutoController {
 	
 	@GetMapping("/inativar/{id}")
 	public String inativar(@PathVariable("id") Long id, RedirectAttributes attr) {
-		try {
-			Produto produto = produtoService.buscarPorId(id);
-			if (produto != null) {
-				produto.setAtivo(false);
-				produtoService.editar(produto);
-				attr.addFlashAttribute("success", "Produto inativado com sucesso.");
-			}
-		} catch (Exception e) {
-			attr.addFlashAttribute("fail", "Erro ao inativar produto.");
-		}
+		produtoService.inativar(id);
+		attr.addFlashAttribute("success", "Produto inativado com sucesso.");
 		return "redirect:/produtos/listar";
 	}
 	
 	@GetMapping("/ativar/{id}")
 	public String ativar(@PathVariable("id") Long id, RedirectAttributes attr) {
-		try {
-			Produto produto = produtoService.buscarPorId(id);
-			if (produto != null) {
-				produto.setAtivo(true);
-				produtoService.editar(produto);
-				attr.addFlashAttribute("success", "Produto ativado com sucesso.");
-			}
-		} catch (Exception e) {
-			attr.addFlashAttribute("fail", "Erro ao ativar produto.");
-		}
+		produtoService.ativar(id);
+		attr.addFlashAttribute("success", "Produto ativado com sucesso.");
 		return "redirect:/produtos/listar";
 	}
 	
@@ -147,38 +133,49 @@ public class ProdutoController {
 	
 	@GetMapping("/editar/{id}")
 	public String preEditar(@PathVariable("id") Long id, ModelMap model) {
-		model.addAttribute("produto", produtoService.buscarPorId(id));
+		Produto produto = produtoService.buscarPorId(id);
+		List<Categoria> categorias = categoriaService.buscarTodos();
+		List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
+		model.addAttribute("produto", produto);
+		model.addAttribute("categorias", categorias);
+		model.addAttribute("fornecedores", fornecedores);
 		return "produto/cadastro";
 	}
 	
 	@PostMapping("/editar")
-	public String editar(@Valid Produto produto, BindingResult result, RedirectAttributes attr, @RequestParam("arquivo") MultipartFile arquivo) {
+	public String editar(@Valid Produto produto, BindingResult result, RedirectAttributes attr, ModelMap model) {
 		
 		//Verifica erros de validação do formulário
 		if (result.hasErrors()) {
-			return "produto/cadastro";
+			return cadastrar(produto, model);
 		}
 		
-		//Upload da Foto do Produto (Não é obrigatório)
-		if(!arquivo.isEmpty()) {
-			//define o tipo de imagem permitido
-			if (!arquivo.getContentType().equals("image/jpeg")) {
-				attr.addFlashAttribute("fail", "O tipo de imagem selecionado não é permitido.");
-		        return "redirect:/produtos/cadastrar";
-			}
-			String nomeImagem = uploadImagem(arquivo);
-			produto.setFoto(nomeImagem);
-		}
 		produtoService.editar(produto);
 		attr.addFlashAttribute("success", "Produto alterado com sucesso.");
 		return "redirect:/produtos/cadastrar";
+	}
+	
+	@GetMapping("/buscar/codigo")
+	public String getPorCodigo(@RequestParam("codigo") Long codigo, ModelMap model, @RequestParam("page") Optional<Integer> page) {
+		int paginaAtual = page.orElse(1);
+		PaginacaoUtil<Produto> pageProduto = produtoService.buscarPorPaginaCodigo(codigo, paginaAtual);
+		List<Categoria> categorias = categoriaService.buscarTodos();
+		List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
+		model.addAttribute("pageProduto", pageProduto);
+		model.addAttribute("categorias", categorias);
+		model.addAttribute("fornecedores", fornecedores);
+		return "produto/lista";
 	}
 	
 	@GetMapping("/buscar/nome")
 	public String getPorNome(@RequestParam("nome") String nome, ModelMap model, @RequestParam("page") Optional<Integer> page) {
 		int paginaAtual = page.orElse(1);
 		PaginacaoUtil<Produto> pageProduto = produtoService.buscarPorPaginaNome(nome, paginaAtual);
+		List<Categoria> categorias = categoriaService.buscarTodos();
+		List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
 		model.addAttribute("pageProduto", pageProduto);
+		model.addAttribute("categorias", categorias);
+		model.addAttribute("fornecedores", fornecedores);
 		return "produto/lista";
 	}
 	
@@ -186,15 +183,24 @@ public class ProdutoController {
 	public String getPorCategoria(@RequestParam("categoria") Categoria categoria, ModelMap model, @RequestParam("page") Optional<Integer> page) {
 		int paginaAtual = page.orElse(1);
 		PaginacaoUtil<Produto> pageProduto = produtoService.buscarPorPaginaCategoria(categoria, paginaAtual);
+		List<Categoria> categorias = categoriaService.buscarTodos();
+		List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
 		model.addAttribute("pageProduto", pageProduto);
+		model.addAttribute("categorias", categorias);
+		model.addAttribute("fornecedores", fornecedores);
 		return "produto/lista";
 	}
 	
 	@GetMapping("/buscar/fornecedor")
 	public String getPorFornecedor(@RequestParam("idFornecedor") Long idFornecedor, ModelMap model, @RequestParam("page") Optional<Integer> page) {
 		int paginaAtual = page.orElse(1);
-		PaginacaoUtil<Produto> pageProduto = produtoService.buscarPorPaginaFornecedor(idFornecedor, paginaAtual);
+		Fornecedor fornecedor = fornecedorService.buscarPorId(idFornecedor);
+		PaginacaoUtil<Produto> pageProduto = produtoService.buscarPorPaginaFornecedor(fornecedor, paginaAtual);
+		List<Categoria> categorias = categoriaService.buscarTodos();
+		List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
 		model.addAttribute("pageProduto", pageProduto);
+		model.addAttribute("categorias", categorias);
+		model.addAttribute("fornecedores", fornecedores);
 		return "produto/lista";
 	}
 	
@@ -202,14 +208,6 @@ public class ProdutoController {
 	public String getPorReferencia(@RequestParam("referencia") String referencia, ModelMap model, @RequestParam("page") Optional<Integer> page) {
 		int paginaAtual = page.orElse(1);
 		PaginacaoUtil<Produto> pageProduto = produtoService.buscarPorPaginaReferencia(referencia, paginaAtual);
-		model.addAttribute("pageProduto", pageProduto);
-		return "produto/lista";
-	}
-	
-	@GetMapping("/buscar/codigo")
-	public String getPorReferencia(@RequestParam("codigo") Long codigo, ModelMap model, @RequestParam("page") Optional<Integer> page) {
-		int paginaAtual = page.orElse(1);
-		PaginacaoUtil<Produto> pageProduto = produtoService.buscarPorPaginaCodigo(codigo, paginaAtual);
 		model.addAttribute("pageProduto", pageProduto);
 		return "produto/lista";
 	}

@@ -16,4 +16,12 @@ SET @preparedStatement = (SELECT IF(
 
 PREPARE alterIfExists FROM @preparedStatement;
 EXECUTE alterIfExists;
-DEALLOCATE PREPARE alterIfExists; 
+DEALLOCATE PREPARE alterIfExists;
+
+-- Criar tabela de usuários se não existir
+CREATE TABLE IF NOT EXISTS usuarios (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    login VARCHAR(255) NOT NULL UNIQUE,
+    nome_completo VARCHAR(255) NOT NULL,
+    senha VARCHAR(255) NOT NULL
+); 

@@ -2,171 +2,255 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Gestão de Obras</title>
-    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+        
+        footer {
+            margin-top: auto;
+        }
+        .obras-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .obras-section h3 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+        .obras-ativas {
+            background-color: #f8f9fa;
+        }
+        .obras-finalizadas {
+            background-color: #e9ecef;
+        }
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+        }
+        .status-nao-iniciada { background-color: #ffc107; color: #000; }
+        .status-em-andamento { background-color: #007bff; color: #fff; }
+        .status-concluida { background-color: #28a745; color: #fff; }
+        .status-cancelada { background-color: #dc3545; color: #fff; }
+        .card {
+            transition: transform 0.2s;
+            margin-bottom: 1rem;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .update-status-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
 </head>
 
-<header th:replace="fragments/header :: cabecalho"></header>
+<header th:replace="~{fragments/header :: cabecalho}"></header>
 
 <body>
-<div th:if="${obraSalva}" class="alert alert-success text-center">
-    Obra cadastrada com sucesso!
-</div>
+    <main>
+        <div th:if="${obraSalva}" class="alert alert-success text-center">
+            Obra cadastrada com sucesso!
+        </div>
 
-<div class="container mt-5">
-    <h1 class="text-center mb-4">Gestão de Obras</h1>
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gestão de Obras</h2>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#novaObraModal">
+                    <i class="oi oi-plus"></i> Incluir Nova Obra
+                </button>
+            </div>
 
-    <div class="text-center mb-4">
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#novaObraModal">+ Incluir Nova Obra</button>
-    </div>
+            <!-- Mensagens de feedback -->
+            <div th:if="${mensagem}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${mensagem}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${erro}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
 
-    <!-- Listagem de obras -->
-    <div class="row justify-content-center">
-        <div class="col-md-4 mb-3" th:each="obra : ${obras}">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${obra.nome}">Nome da Obra</h5>
-                    <p class="card-text">
-                        <strong>Cliente:</strong> <span th:text="${obra.cliente.nome + ' ' + obra.cliente.sobrenome}"></span><br>
-                        <strong>Início:</strong> <span th:text="${#temporals.format(obra.dataInicio, 'dd/MM/yyyy')}"></span><br>
-                        <strong>Entrega Prevista:</strong> <span th:text="${#temporals.format(obra.dataTermino, 'dd/MM/yyyy')}"></span><br>
-                        <strong>Valor Estimado:</strong> R$ <span th:text="${#numbers.formatDecimal(obra.valorEstimado, 2, 2)}"></span><br>
-                        <strong>Status:</strong> <span th:text="${obra.status != null ? obra.status.descricao : 'Em Andamento'}"></span>
-                    </p>
-                    <div class="text-end mt-3">
-                        <a class="btn btn-info btn-sm"
-                           th:href="@{/obras/{id}/detalhes(id=${obra.id})}">
-                            <i class="bi bi-info-circle"></i> Detalhes
-                        </a>
-                        <button class="btn btn-primary btn-sm"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="'#lancarMaterialModal_' + ${obra.id}">
-                            <i class="bi bi-box"></i> Lançar Produtos
-                        </button>
-                    </div>
-
-                    <!-- Modal de lançamento de produto -->
-                    <div class="modal fade" th:id="'lancarMaterialModal_' + ${obra.id}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-md modal-dialog-centered">
-                            <div class="modal-content">
-                                <form th:action="@{/obras/lancar-produto}" method="post">
-                                    <input type="hidden" name="obraId" th:value="${obra.id}" />
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Lançar Produto - <span th:text="${obra.nome}"></span></h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Produto</label>
-                                            <select name="produtoId" class="form-select" required>
-                                                <option value="">Selecione um produto...</option>
-                                                <option th:each="produto : ${produtos}" 
-                                                        th:value="${produto.id}" 
-                                                        th:text="${produto.descricao}">
-                                                    Produto
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Quantidade</label>
-                                            <input type="number" name="quantidade" min="1" class="form-control" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Data</label>
-                                            <input type="date" name="dataRetirada" class="form-control" required>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button class="btn btn-success" type="submit">Salvar</button>
-                                    </div>
-                                </form>
+            <!-- Obras Ativas -->
+            <div class="obras-section obras-ativas">
+                <h3>Obras em Andamento</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3" th:each="obra : ${obras}" 
+                         th:if="${obra.status != T(xyz.ConstruTec.app.model.StatusObra).CONCLUIDA && 
+                                obra.status != T(xyz.ConstruTec.app.model.StatusObra).CANCELADA}">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <span class="status-badge" 
+                                      th:classappend="${'status-' + #strings.toLowerCase(#strings.replace(obra.status.name(), '_', '-'))}"
+                                      th:text="${obra.status.descricao}">Status</span>
+                                <button class="btn btn-sm btn-outline-primary update-status-btn"
+                                        th:attr="onclick='abrirModalStatus(' + ${obra.id} + ')'">
+                                    <i class="oi oi-loop-circular"></i>
+                                </button>
+                                <h5 class="card-title mt-2" th:text="${obra.nome}">Nome da Obra</h5>
+                                <p class="card-text">
+                                    <strong>Cliente:</strong> <span th:text="${obra.cliente.nome + ' ' + obra.cliente.sobrenome}">Nome do Cliente</span><br>
+                                    <strong>Início:</strong> <span th:text="${#temporals.format(obra.dataInicio, 'dd/MM/yyyy')}">01/01/2024</span><br>
+                                    <strong>Previsão:</strong> <span th:text="${#temporals.format(obra.dataTermino, 'dd/MM/yyyy')}">31/12/2024</span><br>
+                                    <strong>Valor:</strong> R$ <span th:text="${#numbers.formatDecimal(obra.valorEstimado, 1, 2)}">0,00</span>
+                                </p>
+                                <div class="text-end">
+                                    <a th:href="@{/obras/{id}/detalhes(id=${obra.id})}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
+            <!-- Obras Finalizadas -->
+            <div class="obras-section obras-finalizadas">
+                <h3>Obras Finalizadas</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3" th:each="obra : ${obras}" 
+                         th:if="${obra.status == T(xyz.ConstruTec.app.model.StatusObra).CONCLUIDA || 
+                                obra.status == T(xyz.ConstruTec.app.model.StatusObra).CANCELADA}">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <span class="status-badge" 
+                                      th:classappend="${'status-' + #strings.toLowerCase(#strings.replace(obra.status.name(), '_', '-'))}"
+                                      th:text="${obra.status.descricao}">Status</span>
+                                <h5 class="card-title mt-2" th:text="${obra.nome}">Nome da Obra</h5>
+                                <p class="card-text">
+                                    <strong>Cliente:</strong> <span th:text="${obra.cliente.nome + ' ' + obra.cliente.sobrenome}">Nome do Cliente</span><br>
+                                    <strong>Início:</strong> <span th:text="${#temporals.format(obra.dataInicio, 'dd/MM/yyyy')}">01/01/2024</span><br>
+                                    <strong>Finalização:</strong> <span th:text="${#temporals.format(obra.dataTermino, 'dd/MM/yyyy')}">31/12/2024</span><br>
+                                    <strong>Valor:</strong> R$ <span th:text="${#numbers.formatDecimal(obra.valorEstimado, 1, 2)}">0,00</span>
+                                </p>
+                                <div class="text-end">
+                                    <a th:href="@{/obras/{id}/detalhes(id=${obra.id})}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Modal: Nova Obra -->
-<div class="modal fade" id="novaObraModal" tabindex="-1" aria-labelledby="novaObraModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <form th:action="@{/obras}" method="post" th:object="${obra}">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cadastrar Nova Obra</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nome da Obra</label>
-                        <input type="text" class="form-control" th:field="*{nome}" required>
+        <!-- Modal Nova Obra -->
+        <div th:replace="fragments/modal-obra :: modal-nova-obra"></div>
+
+        <!-- Modal Atualizar Status -->
+        <div class="modal fade" id="atualizarStatusModal" tabindex="-1" aria-labelledby="atualizarStatusModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="atualizarStatusModalLabel">Atualizar Status da Obra</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Cliente</label>
-                        <select class="form-select" th:field="*{cliente.id}" required>
-                            <option value="">-- Selecione --</option>
-                            <option th:each="cliente : ${clientes}" th:value="${cliente.id}" th:text="${cliente.nome + ' ' + cliente.sobrenome}"></option>
-                        </select>
-                    </div>
-                    <div class="row">
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label">Data de Início</label>
-                            <input type="date" class="form-control" th:field="*{dataInicio}" required>
+                    <form id="formAtualizarStatus" th:action="@{/obras/atualizar-status}" method="POST">
+                        <div class="modal-body">
+                            <input type="hidden" id="obraId" name="obraId">
+                            <div class="mb-3">
+                                <label class="form-label">Novo Status</label>
+                                <select class="form-select" name="novoStatus" required>
+                                    <option value="">Selecione...</option>
+                                    <option th:each="status : ${T(xyz.ConstruTec.app.model.StatusObra).values()}"
+                                            th:value="${status}"
+                                            th:text="${status.descricao}">Status</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Observação</label>
+                                <textarea class="form-control" name="observacao" rows="3" 
+                                          placeholder="Adicione uma observação sobre a mudança de status"></textarea>
+                            </div>
                         </div>
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label">Data Prevista para Entrega</label>
-                            <input type="date" class="form-control" th:field="*{dataTermino}" required>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Atualizar Status</button>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Valor Estimado (R$)</label>
-                        <input type="number" 
-                               step="0.01" 
-                               min="0" 
-                               max="999999999999.99"
-                               class="form-control" 
-                               th:field="*{valorEstimado}" 
-                               required>
-                        <div class="form-text">
-                            Valor máximo: R$ 999.999.999.999,99
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" th:field="*{status}" required>
-                            <option th:each="status : ${T(xyz.ConstruTec.app.model.StatusObra).values()}"
-                                    th:value="${status}"
-                                    th:text="${status.descricao}">Status</option>
-                        </select>
-                    </div>
+                    </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Salvar Obra</button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
+    </main>
 
-<footer th:replace="fragments/footer :: rodape"></footer>
+    <footer th:replace="~{fragments/footer :: rodape}"></footer>
 
-</body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Define a data atual como valor padrão para os campos de data
-    document.addEventListener('DOMContentLoaded', function() {
-        var today = new Date().toISOString().split('T')[0];
-        var dateInputs = document.querySelectorAll('input[type="date"]');
-        dateInputs.forEach(function(input) {
-            if (!input.value) {
-                input.value = today;
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script th:inline="javascript">
+        function atualizarStatus() {
+            console.log('Função atualizarStatus chamada');
+            const obraId = document.getElementById('obraIdStatus').value;
+            const novoStatus = document.getElementById('novoStatus').value;
+            const observacoes = document.getElementById('observacoesStatus').value;
+
+            console.log('Dados:', { obraId, novoStatus, observacoes });
+
+            // Confirmação adicional para conclusão de obra
+            if (novoStatus === 'CONCLUIDA') {
+                if (!confirm('Tem certeza que deseja concluir esta obra? A obra será removida do mapa e não poderá mais ser reaberta.')) {
+                    return;
+                }
             }
-        });
-    });
-</script>
+
+            const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            console.log('Token CSRF:', token);
+
+            fetch(`/obras/${obraId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({
+                    status: novoStatus,
+                    observacoes: observacoes
+                })
+            })
+            .then(response => {
+                console.log('Resposta:', response);
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    response.text().then(text => {
+                        console.error('Erro:', text);
+                        alert('Erro ao atualizar status: ' + text);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar status: ' + error.message);
+            });
+        }
+
+        function abrirModalStatus(obraId) {
+            console.log('Abrindo modal para obra:', obraId);
+            document.getElementById('obraIdStatus').value = obraId;
+            new bootstrap.Modal(document.getElementById('atualizarStatusModal')).show();
+        }
+    </script>
+</body>
 </html>

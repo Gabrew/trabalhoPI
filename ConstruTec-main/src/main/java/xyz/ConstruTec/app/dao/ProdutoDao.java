@@ -98,6 +98,22 @@ public class ProdutoDao extends AbstractDao<Produto, Long> {
 		return new PaginacaoUtil<>(tamanho, pagina, totalDePaginas, produtos, null);
 	}
 
+	public List<Produto> findProdutosComEstoqueBaixo() {
+		return getEntityManager()
+				.createQuery("select distinct p from Produto p join p.estoques e where e.quantidade <= COALESCE(e.quantidadeMinima, 10) and e.obra is null", Produto.class)
+				.getResultList();
+	}
+
+	public List<Produto> findProdutosMaisMovimentados() {
+		return getEntityManager()
+				.createQuery("select p from Produto p join p.estoques e " +
+						"where e.obra is null " +
+						"group by p " +
+						"order by sum(e.quantidade) desc", Produto.class)
+				.setMaxResults(5)
+				.getResultList();
+	}
+
 	public long count() {
 		return getEntityManager().createQuery("select count(*) from Produto", Long.class).getSingleResult();
 	}

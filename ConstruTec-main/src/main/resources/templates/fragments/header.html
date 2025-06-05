@@ -1,50 +1,184 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8" /></head>
-<header class="container-fluid" th:fragment="cabecalho">
-        <div class="row bg-dark">
-            <div class="col-md-12">
-                <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                    <a class="navbar-brand" href="#">CONSTRU TEC</a>
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#conteudoNavbarSuportado" aria-controls="conteudoNavbarSuportado" aria-expanded="false" aria-label="Alterna navegação">
-                      <span class="navbar-toggler-icon"></span>
-                    </button>                  
-                    <div class="collapse navbar-collapse" id="conteudoNavbarSuportado">
-                      <ul class="navbar-nav mr-auto">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css" crossorigin="anonymous">
+    <style>
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Espaçamento entre itens do nav */
+        }
+
+        .nav-item {
+            margin: 0 10px; /* Margem horizontal em todos os lados */
+        }
+
+        /* Removendo margem do primeiro item */
+        .nav-item:first-child {
+            margin-left: 0;
+        }
+
+        /* Removendo margem do último item */
+        .nav-item:last-child {
+            margin-right: 0;
+        }
+
+        .btn-outline-light {
+            margin: 0 5px; /* Margem horizontal em todos os lados dos botões */
+            transition: all 0.3s ease;
+        }
+
+        /* Estilo para o botão da página atual */
+        .btn-outline-light.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .dropdown-menu {
+            background-color: #343a40;
+            border: 1px solid #495057;
+            margin-top: 5px;
+        }
+        
+        .dropdown-item {
+            color: #fff;
+            padding: 8px 20px;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #495057;
+            color: #fff;
+        }
+
+        .navbar-brand {
+            margin-right: 35px; /* Aumentado o espaço após a logo */
+        }
+
+        /* Estilo para o botão de dropdown ativo */
+        .dropdown-toggle.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Adicionando padding ao container para dar mais espaço */
+        .navbar > .container {
+            padding: 0 15px;
+        }
+
+        /* Ajustando espaço entre os itens do menu */
+        .navbar-nav.me-auto > .nav-item {
+            padding: 0 5px;
+        }
+
+        /* Correção para os dropdowns */
+        .dropdown-menu.show {
+            display: block !important;
+        }
+
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header th:fragment="cabecalho">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" th:href="@{/}">
+                    ConstruTec
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <!-- Home -->
                         <li class="nav-item">
-                          <a class="nav-link" th:href="@{/}">Página Inicial<span class="sr-only">(página atual)</span></a>
-                        </li>                        
-                        <li class="nav-item dropdown" sec:authorize="hasRole('ROLE_ADMIN')">
-                          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Cadastros
-                          </a>
-                          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" th:href="@{/clientes/cadastrar}">Clientes</a>
-                            <a class="dropdown-item" th:href="@{/fornecedores/cadastrar}">Fornecedores</a>
-                            <a class="dropdown-item" th:href="@{/produtos/cadastrar}">Produtos</a>
-                          </div>
+                            <a class="btn btn-outline-light" th:href="@{/}" th:classappend="${#httpServletRequest.requestURI == '/' ? 'active' : ''}">Home</a>
                         </li>
+                        &nbsp;&nbsp;
+                        <!-- Cadastros -->
                         <li class="nav-item dropdown">
-                          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Consultas
-                          </a>
-                          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" th:href="@{/clientes/listar}">Clientes</a>
-                            <a class="dropdown-item" th:href="@{/fornecedores/listar}">Fornecedores</a>
-                            <a class="dropdown-item" th:href="@{/produtos/listar}">Produtos</a>
-                            <a class="dropdown-item" th:href="@{/obras/}">Obras</a>
-                          </div>
+                            <a class="btn btn-outline-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                th:classappend="${#httpServletRequest.requestURI.matches('/.*/cadastrar.*') ? 'active' : ''}">
+                                Cadastros
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" th:href="@{/produtos/cadastrar}">Cadastrar Produto</a></li>
+                                <li><a class="dropdown-item" th:href="@{/fornecedores/cadastrar}">Cadastrar Fornecedor</a></li>
+                                <li><a class="dropdown-item" th:href="@{/clientes/cadastrar}">Cadastrar Cliente</a></li>
+                            </ul>
                         </li>
+                        &nbsp;&nbsp;
+                        <!-- Consultas -->
+                        <li class="nav-item dropdown">
+                            <a class="btn btn-outline-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                th:classappend="${#httpServletRequest.requestURI.matches('/(produtos|fornecedores|clientes)$') ? 'active' : ''}">
+                                Consultas
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" th:href="@{/produtos}">Produtos</a></li>
+                                <li><a class="dropdown-item" th:href="@{/fornecedores}">Fornecedores</a></li>
+                                <li><a class="dropdown-item" th:href="@{/clientes}">Clientes</a></li>
+                            </ul>
+                        </li>
+                        &nbsp;&nbsp;
+                        <!-- Estoque -->
                         <li class="nav-item">
-                          <a class="nav-link" th:href="@{/estoque}">Estoque</a>
+                            <a class="btn btn-outline-light" th:href="@{/estoque}" th:classappend="${#httpServletRequest.requestURI.startsWith('/estoque') ? 'active' : ''}">Estoque</a>
                         </li>
+                        &nbsp;&nbsp;
+                        <!-- Obras -->
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/logout}">Sair</a>
+                            <a class="btn btn-outline-light" th:href="@{/obras}" th:classappend="${#httpServletRequest.requestURI.startsWith('/obras') ? 'active' : ''}">Obras</a>
                         </li>
-                      </ul>
-                     
-                    </div>
-                  </nav>
+                    </ul>
+                    &nbsp;&nbsp;
+                    <!-- Sair -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <form th:action="@{/logout}" method="post" class="form-inline">
+                                <button type="submit" class="btn btn-outline-light">Sair</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
+        </nav>
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Inicializa os dropdowns do Bootstrap
+                var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+                var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                    return new bootstrap.Dropdown(dropdownToggleEl);
+                });
+
+                // Adiciona hover aos dropdowns
+                var dropdowns = document.querySelectorAll('.dropdown');
+                dropdowns.forEach(function(dropdown) {
+                    dropdown.addEventListener('mouseenter', function() {
+                        var dropdownToggle = this.querySelector('.dropdown-toggle');
+                        var dropdownMenu = this.querySelector('.dropdown-menu');
+                        dropdownMenu.classList.add('show');
+                    });
+
+                    dropdown.addEventListener('mouseleave', function() {
+                        var dropdownToggle = this.querySelector('.dropdown-toggle');
+                        var dropdownMenu = this.querySelector('.dropdown-menu');
+                        dropdownMenu.classList.remove('show');
+                    });
+                });
+            });
+        </script>
     </header>
+</body>
+</html>

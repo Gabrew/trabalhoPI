@@ -2,52 +2,150 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8" />
+<style>
+    .status-card {
+        border-left: 4px solid;
+        margin-bottom: 15px;
+    }
+    .status-card.warning {
+        border-left-color: #ffc107;
+    }
+    .status-card.info {
+        border-left-color: #17a2b8;
+    }
+    .status-card.success {
+        border-left-color: #28a745;
+    }
+    .status-card .card-body {
+        padding: 1rem;
+    }
+    .small-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+</style>
 </head>
 <body>
-	<main class="container" th:fragment="principal"
-		style="min-height: 485px; margin-bottom: 80px;">
-
-		<div class="com-md-12 mt-3"
-			style="border: 1px dotted #ccc; padding: 10px">
-			<section>
-				<h2 style="border-bottom: 2px solid #000; margin-bottom: 20px">Obras</h2>
-
-				<div class="card-deck">
-					<div class="card text-white bg-primary mb-3"
-						style="max-width: 33rem;">
+	<section th:fragment="principal">
+		<div class="container mt-4">
+			<h2 class="mb-4">Dashboard</h2>
+			
+			<!-- Cards principais -->
+			<div class="row mb-4">
+				<div class="col-md-3">
+					<div class="card text-white bg-primary h-100">
 						<div class="card-header">Clientes</div>
-						<div class="card-body">
-							<h6 class="card-title text-center">Quantidade Atual</h6>
-							<p class="card-text text-center"><span style="font-size: 40px;" th:text="${home.qtd_cliente}"></span></p>
-						</div>
-					</div>
-					<div class="card text-white bg-secondary mb-3"
-						style="max-width: 33rem;">
-						<div class="card-header">Fornecedores</div>
-						<div class="card-body">
-							<h6 class="card-title text-center">Quantidade Atual</h6>
-							<p class="card-text text-center"><span style="font-size: 40px;" th:text="${home.qtd_fornecedor}"></span></p>
-						</div>
-					</div><div class="card text-white bg-success mb-3"
-						style="max-width: 33rem;">
-						<div class="card-header">Produtos</div>
-						<div class="card-body">
-							<h6 class="card-title text-center">Quantidade Atual</h6>
-							<p class="card-text text-center"><span style="font-size: 40px;" th:text="${home.qtd_produto}"></span></p>
-						</div>
-					</div>
-					<div class="card text-white bg-info mb-3"
-						style="max-width: 33rem;">
-						<div class="card-header">Obras</div>
-						<div class="card-body">
-							<h6 class="card-title text-center">Quantidade Atual</h6>
-							<p class="card-text text-center"><span style="font-size: 40px;" th:text="${home.qtd_obra}"></span></p>
+						<div class="card-body text-center">
+							<h6 class="card-title">Quantidade Atual</h6>
+							<p class="card-text">
+								<span class="display-4" th:text="${home.qtd_cliente}">0</span>
+							</p>
 						</div>
 					</div>
 				</div>
+				<div class="col-md-3">
+					<div class="card text-white bg-secondary h-100">
+						<div class="card-header">Fornecedores</div>
+						<div class="card-body text-center">
+							<h6 class="card-title">Quantidade Atual</h6>
+							<p class="card-text">
+								<span class="display-4" th:text="${home.qtd_fornecedor}">0</span>
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card text-white bg-success h-100">
+						<div class="card-header">Produtos</div>
+						<div class="card-body text-center">
+							<h6 class="card-title">Quantidade Atual</h6>
+							<p class="card-text">
+								<span class="display-4" th:text="${home.qtd_produto}">0</span>
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card text-white bg-info h-100">
+						<div class="card-header">Obras</div>
+						<div class="card-body text-center">
+							<h6 class="card-title">Quantidade Atual</h6>
+							<p class="card-text">
+								<span class="display-4" th:text="${home.qtd_obra}">0</span>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
 
-			</section>
+			<!-- Status do Sistema -->
+			<h3 class="mb-3">Status do Sistema</h3>
+			<div class="row mb-4">
+				<div class="col-md-6">
+					<div class="card border-warning h-100">
+						<div class="card-body">
+							<h5 class="card-title">
+								<i class="oi oi-warning text-warning"></i>
+								Produtos com Estoque Baixo
+							</h5>
+							<p class="card-text">
+								<span class="h3" th:text="${home.produtos_estoque_baixo}">0</span>
+								produtos precisam de reposição
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card border-info h-100">
+						<div class="card-body">
+							<h5 class="card-title">
+								<i class="oi oi-timer text-info"></i>
+								Obras em Andamento
+							</h5>
+							<p class="card-text">
+								<span class="h3" th:text="${home.obras_andamento}">0</span>
+								obras em progresso
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Atividades Recentes -->
+			<h3 class="mb-3">Atividades Recentes</h3>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card border-success mb-3">
+						<div class="card-body">
+							<h5 class="card-title">
+								<i class="oi oi-clock text-success"></i>
+								Últimas Movimentações
+							</h5>
+							<ul class="list-group list-group-flush">
+								<li class="list-group-item" th:each="mov : ${home.ultimas_movimentacoes}" th:text="${mov}">
+									Movimentação exemplo
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card border-info mb-3">
+						<div class="card-body">
+							<h5 class="card-title">
+								<i class="oi oi-calendar text-info"></i>
+								Próximas Entregas
+							</h5>
+							<ul class="list-group list-group-flush">
+								<li class="list-group-item" th:each="entrega : ${home.proximas_entregas}" th:text="${entrega}">
+									Entrega exemplo
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-	</main>
+	</section>
 </body>
 </html>

@@ -25,6 +25,27 @@ public class Obra extends AbstractEntity<Long> {
     @Column(name = "valor_estimado", nullable = false)
     private BigDecimal valorEstimado;
 
+    @Column(name = "endereco")
+    private String endereco;
+
+    @Column(name = "cidade")
+    private String cidade;
+
+    @Column(name = "estado")
+    private String estado;
+
+    @Column(name = "cep")
+    private String cep;
+
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @Column(name = "observacoes", columnDefinition = "TEXT")
+    private String observacoes;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private StatusObra status = StatusObra.EM_ANDAMENTO;
@@ -105,6 +126,62 @@ public class Obra extends AbstractEntity<Long> {
         this.recebimentos = recebimentos;
     }
 
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getCep() {
+        return cep;
+    }
+
+    public void setCep(String cep) {
+        this.cep = cep;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getObservacoes() {
+        return observacoes;
+    }
+
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
+    }
+
     // Métodos auxiliares
 
     public void adicionarRetiradaProduto(RetiradaProduto retirada) {
@@ -125,5 +202,25 @@ public class Obra extends AbstractEntity<Long> {
     public void removerRecebimento(Recebimento recebimento) {
         recebimento.setObra(null);
         this.recebimentos.remove(recebimento);
+    }
+
+    public String getEnderecoCompleto() {
+        StringBuilder sb = new StringBuilder();
+        if (endereco != null && !endereco.trim().isEmpty()) {
+            sb.append(endereco.trim());
+        }
+        if (cidade != null && !cidade.trim().isEmpty()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(cidade.trim());
+        }
+        if (estado != null && !estado.trim().isEmpty()) {
+            if (sb.length() > 0) sb.append(" - ");
+            sb.append(estado.trim());
+        }
+        if (cep != null && !cep.trim().isEmpty()) {
+            if (sb.length() > 0) sb.append(", CEP: ");
+            sb.append(cep.trim());
+        }
+        return sb.toString();
     }
 }

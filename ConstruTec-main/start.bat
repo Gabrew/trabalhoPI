@@ -1,0 +1,6 @@
+@echo off
+echo Matando processo na porta 8080...
+for /f "tokens=5" %%a in ('netstat -aon ^| find ":8080"') do taskkill /F /PID %%a
+timeout /t 2 /nobreak
+echo Iniciando a aplicacao...
+mvn spring-boot:run 

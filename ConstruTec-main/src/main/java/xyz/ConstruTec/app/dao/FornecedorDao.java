@@ -79,7 +79,29 @@ public Fornecedor findByInscricaoEstadual(String inscricaoEstadual) {
 	return null;
 }
 
-	
+public PaginacaoUtil<Fornecedor> findByNome(String nome, int pagina) {
+	int tamanho = 5;
+	int inicio = (pagina - 1) * tamanho;
+	List<Fornecedor> fornecedores = getEntityManager()
+			.createQuery("select f from Fornecedor f where f.nome like concat('%',?1,'%')", Fornecedor.class)
+			.setParameter(1, nome).setFirstResult(inicio).setMaxResults(tamanho).getResultList();
+
+	long totalRegistros = fornecedores.size();
+	long totalDePaginas = (totalRegistros + (tamanho - 1)) / tamanho;
+
+	return new PaginacaoUtil<>(tamanho, pagina, totalDePaginas, fornecedores, null);
+}
+
+public List<Fornecedor> findFornecedoresMaisAtivos() {
+	return getEntityManager()
+			.createQuery("select f from Fornecedor f " +
+					"join f.estoques e " +
+					"group by f " +
+					"order by count(e) desc", Fornecedor.class)
+			.setMaxResults(5)
+			.getResultList();
+}
+
 }
 
 

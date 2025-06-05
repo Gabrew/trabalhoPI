@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css"
 	crossorigin="anonymous">
-<title>Controle de Estoque</title>
+<link rel="stylesheet" href="/css/custom.css">
+<title>Lista de Fornecedores</title>
 
 <style type="text/css">
 
@@ -70,156 +71,176 @@
 
 	<header th:replace="fragments/header :: cabecalho"></header>
 
-	<main class="container" style="min-height: 450px;">
-		<div class="com-md-12 mt-3">
-			<section>
-				<div style="border-bottom: 1px solid #343A40;">
-					<h2>Consulta de Fornecedores</h2>
+	<main>
+		<div class="container mt-4">
+			<div th:replace="fragments/alert"></div>
+			
+			<!-- Seção de Busca -->
+			<div class="search-section">
+				<div class="search-buttons">
+					<button class="btn btn-secondary" type="button" data-bs-toggle="collapse" 
+							data-bs-target="#collapseNomeFantasia" aria-controls="collapseNomeFantasia">
+						Nome Fantasia
+					</button>
+					<button class="btn btn-secondary" type="button" data-bs-toggle="collapse" 
+							data-bs-target="#collapseRazaoSocial" aria-controls="collapseRazaoSocial">
+						Razão Social
+					</button>
 				</div>
 				
+				<div class="collapse mt-3" id="collapseNomeFantasia">
+					<div class="card card-body">
+						<form method="GET" th:action="@{/fornecedores/buscar/nomeFantasia}" class="row g-3">
+							<div class="col-auto">
+								<input type="text" class="form-control" name="nomeFantasia" placeholder="Digite o nome fantasia">
+							</div>
+							<div class="col-auto">
+								<button type="submit" class="btn btn-primary">Pesquisar</button>
+							</div>
+						</form>
+					</div>
+				</div>
 				
-				<div class="row">
-					<div class="col-md-12 mt-3">
-
-						<p>
-							<i class="oi oi-magnifying-glass"></i><span></span>
-							<button class="btn btn-secondary" type="button"
-								data-toggle="collapse" data-target="#collapseNomeFantasia"
-								aria-controls="collapseNome">Nome Fantasia</button>
-							<button class="btn btn-secondary" type="button"
-								data-toggle="collapse" data-target="#collapseRazaoSocial"
-								aria-controls="collapseCargo">Razão Social</button>
-						</p>
-						<div class="row">
-							<div class="col">
-								<div class="collapse" id="collapseNomeFantasia">
-									<nav class="navbar navbar-light bg-light">
-										<form class="form-inline" method="GET"
-											th:action="@{/fornecedores/buscar/nomeFantasia}">
-											<input class="form-control mr-sm-2" type="search"
-												placeholder="nome fantasia" aria-label="Search" th:name="nomeFantasia" />
-											<button class="btn btn-outline-primary my-2 my-sm-0">Pesquisar</button>
-										</form>
-									</nav>
-								</div>
+				<div class="collapse mt-3" id="collapseRazaoSocial">
+					<div class="card card-body">
+						<form method="GET" th:action="@{/fornecedores/buscar/razaoSocial}" class="row g-3">
+							<div class="col-auto">
+								<input type="text" class="form-control" name="razaoSocial" placeholder="Digite a razão social">
 							</div>
-						</div>
-						<div class="row">
-							<div class="col">
-								<div class="collapse" id="collapseRazaoSocial">
-									<nav class="navbar navbar-light bg-light">
-										<form class="form-inline" method="GET"
-											th:action="@{/fornecedores/buscar/razaoSocial}">
-											<input class="form-control mr-sm-2" type="search"
-												placeholder="razão social" aria-label="Search" th:name="razaoSocial" />
-											<button class="btn btn-outline-primary my-2 my-sm-0">Pesquisar</button>
-										</form>
-									</nav>
-								</div>
+							<div class="col-auto">
+								<button type="submit" class="btn btn-primary">Pesquisar</button>
 							</div>
-						</div>
+						</form>
+					</div>
 				</div>
-			</div>		
-						<div th:replace="fragments/alert"></div>
-						
-						<table class="table table-striped">
-							<thead>
-								<tr>
-									<th scope="col">#</th>
-									<th scope="col">Nome Fantasia</th>
-									<th scope="col">Razão Social</th>
-									<th scope="col">CNPJ</th>
-									<th scope="col">Insc. Etadual</th>
-									<th scope="col">Telefone</th>
-									<th scope="col" colspan="2" sec:authorize="hasRole('ROLE_ADMIN')">Ações</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr th:each="forn : ${pageFornecedor.registros}">
-									<th style="width: 2%" scope="row" th:text="${forn.id}">1</th>
-									<td th:text="${#strings.abbreviate(forn.nomeFantasia,70)}"></td>
-									<td th:text="${#strings.abbreviate(forn.razaoSocial,70)}"></td>
-									<td style="width: 15%" th:text="${forn.cnpj}"></td>
-									<td style="width: 12%" th:text="${forn.inscricaoEstadual}"></td>
-									<td style="width: 15%" th:text="${forn.celular}"></td>
-									<td style="width: 3%;" sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/fornecedores/editar/{id}(id=${forn.id})}" title="Editar"> 
-										<span class="oi oi-pencil"></span>
-									</a></td>
-									<td style="width: 3%;" sec:authorize="hasRole('ROLE_ADMIN')"><a href="#" title="Excluir" data-toggle="modal" data-target="#myModal" th:id="${'btn_fornecedores/excluir/' + forn.id}">
-										<span class="oi oi-trash"></span>
-									</a></td>
-								</tr>
-							</tbody>
-						</table>
-						
-						<nav aria-label="Navegação de página exemplo">
-							<ul class="pagination justify-content-center">
-								<li class="page-item"><a class="page-link" th:href="@{/fornecedores/listar(page=${1})}" tabindex="-1">Primeira</a></li>
-								<li th:class="${pageFornecedor.pagina == 1} ? 'page-item disabled' : 'page-item'"><a class="page-link"
-									th:href="@{/fornecedores/listar(page=${pageFornecedor.pagina - 1})}" tabindex="-1">Anterior</a></li>
-								<li class="page-item">
-									<span class="page-link" th:text="|${pageFornecedor.pagina} de ${pageFornecedor.totalDePagina}|"></span>
-								</li>
-								<li th:class="${pageFornecedor.pagina == pageFornecedor.totalDePagina} ? 'page-item disabled' : 'page-item'"><a class="page-link" 
-									th:href="@{/fornecedores/listar(page=${pageFornecedor.pagina + 1})}" >Próximo</a>
-								</li>
-								<li class="page-item"><a class="page-link" th:href="@{/fornecedores/listar(page=${pageFornecedor.totalDePagina})}" tabindex="-1">Última</a></li>
-							</ul>
-						</nav>
-					</section>
-				</div>
+			</div>
+			
+			<!-- Tabela de Fornecedores -->
+			<div class="table-responsive">
+				<table class="table table-striped table-hover">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Nome Fantasia</th>
+							<th>Razão Social</th>
+							<th>CNPJ</th>
+							<th>Telefone</th>
+							<th>Ações</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="forn : ${pageFornecedor.registros}">
+							<td th:text="${forn.id}">1</td>
+							<td th:text="${forn.nomeFantasia}">Nome Fantasia</td>
+							<td th:text="${forn.razaoSocial}">Razão Social</td>
+							<td th:text="${forn.cnpj}">00.000.000/0000-00</td>
+							<td th:text="${forn.telefone}">(00) 0000-0000</td>
+							<td>
+								<a class="btn btn-info btn-sm" th:href="@{/fornecedores/editar/{id} (id=${forn.id})}" role="button">
+									<span class="oi oi-pencil" title="Editar" aria-hidden="true"></span>
+								</a>
+								<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" 
+										th:data-bs-target="'#excluirModal' + ${forn.id}">
+									<span class="oi oi-trash"></span>
+								</button>
+								
+								<!-- Modal de Confirmação -->
+								<div class="modal fade" th:id="'excluirModal' + ${forn.id}" tabindex="-1" role="dialog" 
+									 aria-labelledby="excluirModalLabel" aria-hidden="true">
+									<div class="modal-dialog" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<h5 class="modal-title" id="excluirModalLabel">Confirmar Exclusão</h5>
+												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+											</div>
+											<div class="modal-body">
+												Deseja realmente excluir este fornecedor?
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+												<a th:href="@{/fornecedores/excluir/{id}(id=${forn.id})}" class="btn btn-danger">Excluir</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<!-- Paginação -->
+			<nav aria-label="Navegação de página" th:if="${pageFornecedor.totalDePagina > 1}">
+				<ul class="pagination justify-content-center">
+					<li class="page-item" th:classappend="${pageFornecedor.pagina == 1} ? 'disabled'">
+						<a class="page-link" th:href="@{/fornecedores/listar(page=1)}" tabindex="-1">Primeira</a>
+					</li>
+					<li class="page-item" th:classappend="${pageFornecedor.pagina == 1} ? 'disabled'">
+						<a class="page-link" th:href="@{/fornecedores/listar(page=${pageFornecedor.pagina - 1})}" tabindex="-1">Anterior</a>
+					</li>
+					<li class="page-item">
+						<span class="page-link" th:text="|${pageFornecedor.pagina} de ${pageFornecedor.totalDePagina}|"></span>
+					</li>
+					<li class="page-item" th:classappend="${pageFornecedor.pagina == pageFornecedor.totalDePagina} ? 'disabled'">
+						<a class="page-link" th:href="@{/fornecedores/listar(page=${pageFornecedor.pagina + 1})}">Próxima</a>
+					</li>
+					<li class="page-item" th:classappend="${pageFornecedor.pagina == pageFornecedor.totalDePagina} ? 'disabled'">
+						<a class="page-link" th:href="@{/fornecedores/listar(page=${pageFornecedor.totalDePagina})}">Última</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
 	</main>
 
 	<footer th:replace="fragments/footer :: rodape"></footer>
 
-	<div th:replace="fragments/modal :: modal"></div>
-
-	<script src="/vendor/bootstrap/jquery-3.1.0.js"></script>
-	<script src="/vendor/bootstrap/popper.min.js"></script>
-	<script src="/vendor/bootstrap/bootstrap.min.js"></script>
-
+	<!-- Scripts -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
 	<script type="text/javascript">
-    
-    	
-    	$(document).ready(function(){
-    		//Efeito LigthBox
-    		$('.galeria img').click(function(){
-    			$('.bg').animate({'opacity':'0.60'}, 500, 'linear');
-    			$('.bg, .lb').css('display', 'block');
-    			
-    			var big = $(this).attr('src');
-    			
-    			$('.lb img').attr('src', big);
-    			$('.lb img').animate({'opacity':'1.00'}, 500, 'linear');
-    		});
-    		
-    		$('.close span').click(function(){
-    			$('.bg, .lb').css('display', 'none');
-    			$('.lb img').css('opacity', '0');
-    		});
-    		
-    		//Ocultar alert
-    	    setTimeout(function(){
-    			$(".alert").fadeOut("slow", function(){
-    				$(this).alert('close');
-    			});
-    		}, 5000);
-    	});
-    	
-    	//Exclusão de fornecedor
-		var url = '';
-	    
-	    $('a[id*="btn_"]').click(function() {
-	    	url = "/" + $(this).attr('id').split("_")[1];	
-	    	console.log(url);
-	    });
-	    
-	    $('#ok_confirm').click(function() {
-	    	document.location.href = url;	
-	    	console.log("Excluiu");
-	    });
-    </script>
+		$(document).ready(function(){
+			// Inicializar popovers
+			$('[data-toggle="popover"]').popover();
 
+			// Aplicar máscara ao campo de busca por CNPJ com feedback visual
+			$('input[name="cnpj"]').mask('00.000.000/0000-00', {
+				clearIfNotMatch: true,
+				placeholder: '__.___.___/____-__',
+				onChange: function(value, e) {
+					var input = $(e.target);
+					var padraoCNPJ = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
+					
+					if (value && padraoCNPJ.test(value)) {
+						input.addClass('is-valid').removeClass('is-invalid');
+					} else if (value) {
+						input.addClass('is-invalid').removeClass('is-valid');
+					} else {
+						input.removeClass('is-valid').removeClass('is-invalid');
+					}
+				}
+			});
+
+			// Validar CNPJ antes da busca
+			$('form[action*="/fornecedores/buscar/cnpj"]').on('submit', function(e) {
+				var cnpj = $('input[name="cnpj"]').val();
+				var padraoCNPJ = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
+				
+				if (!cnpj || !padraoCNPJ.test(cnpj)) {
+					e.preventDefault();
+					alert('Por favor, insira um CNPJ válido no formato 00.000.000/0000-00');
+					return false;
+				}
+			});
+
+			// Ocultar alertas após 5 segundos
+			setTimeout(function(){
+				$(".alert").fadeOut("slow", function(){
+					$(this).alert('close');
+				});
+			}, 5000);
+		});
+	</script>
 </body>
 </html>

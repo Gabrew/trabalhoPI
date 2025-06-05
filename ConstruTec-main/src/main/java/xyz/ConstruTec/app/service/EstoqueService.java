@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 import xyz.ConstruTec.app.dao.EstoqueDao;
 import xyz.ConstruTec.app.dao.MovimentacaoEstoqueDao;
 import xyz.ConstruTec.app.model.Estoque;
@@ -42,12 +43,14 @@ public class EstoqueService {
         return estoqueRepository.findByObra(obra);
     }
 
+    @Transactional(readOnly = true)
     public Estoque buscarEstoqueProdutoMatriz(Produto produto) {
         return estoqueRepository.findByProdutoAndObraIsNull(produto).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public Estoque buscarEstoqueProdutoObra(Produto produto, Obra obra) {
-        return estoqueRepository.findByProdutoAndObra(produto, obra);
+        return estoqueRepository.findByProdutoAndObra(produto, obra).orElse(null);
     }
 
     public List<MovimentacaoEstoque> buscarMovimentacoesRecentes(int limite) {
@@ -118,92 +121,86 @@ public class EstoqueService {
         movimentacaoRepository.save(movimentacao);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public MovimentacaoEstoque realizarTransferencia(MovimentacaoEstoque movimentacao) {
-        // Valida a movimentação
-        if (movimentacao.getProduto() == null) {
-            throw new RuntimeException("Produto é obrigatório");
-        }
-        if (movimentacao.getQuantidade() <= 0) {
-            throw new RuntimeException("Quantidade deve ser maior que zero");
-        }
-        if (movimentacao.getOrigem() == null && movimentacao.getDestino() == null) {
-            throw new RuntimeException("Origem ou destino é obrigatório");
-        }
-        if (movimentacao.getFornecedor() == null) {
-            throw new RuntimeException("Fornecedor é obrigatório");
-        }
-        if (movimentacao.getPrecoCusto() == null || movimentacao.getPrecoCusto().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Preço de custo é obrigatório e deve ser maior que zero");
-        }
-
+        System.out.println("\n=== Iniciando processo de transferência no EstoqueService ===");
+        
         try {
-            // Busca ou cria os estoques
-            Estoque estoqueOrigem = null;
-            Estoque estoqueDestino = null;
-
-            // Se a origem é null, significa que é da matriz
-            if (movimentacao.getOrigem() == null) {
-                estoqueOrigem = buscarEstoqueProdutoMatriz(movimentacao.getProduto());
-                if (estoqueOrigem == null) {
-                    throw new RuntimeException("Produto não encontrado no estoque da matriz");
-                }
-            } else {
-                estoqueOrigem = buscarEstoqueProdutoObra(movimentacao.getProduto(), movimentacao.getOrigem());
-                if (estoqueOrigem == null) {
-                    throw new RuntimeException("Produto não encontrado no estoque da obra de origem");
-                }
+            // Validações iniciais
+            if (movimentacao == null) {
+                throw new IllegalArgumentException("Movimentação não pode ser nula");
             }
-
-            // Se o destino é null, significa que é para a matriz
+            if (movimentacao.getProduto() == null) {
+                throw new IllegalArgumentException("Produto é obrigatório");
+            }
+            if (movimentacao.getQuantidade() == null || movimentacao.getQuantidade() <= 0) {
+                throw new IllegalArgumentException("Quantidade deve ser maior que zero");
+            }
             if (movimentacao.getDestino() == null) {
-                estoqueDestino = buscarEstoqueProdutoMatriz(movimentacao.getProduto());
-                if (estoqueDestino == null) {
-                    estoqueDestino = new Estoque();
-                    estoqueDestino.setProduto(movimentacao.getProduto());
-                    estoqueDestino.setQuantidade(0);
-                }
-            } else {
-                estoqueDestino = buscarEstoqueProdutoObra(movimentacao.getProduto(), movimentacao.getDestino());
-                if (estoqueDestino == null) {
-                    estoqueDestino = new Estoque();
-                    estoqueDestino.setProduto(movimentacao.getProduto());
-                    estoqueDestino.setObra(movimentacao.getDestino());
-                    estoqueDestino.setQuantidade(0);
-                }
+                throw new IllegalArgumentException("Destino é obrigatório");
             }
-
-            // Valida se há estoque suficiente
-            if (estoqueOrigem.getQuantidade() < movimentacao.getQuantidade()) {
-                throw new RuntimeException("Quantidade insuficiente em estoque na origem");
+            if (movimentacao.getFornecedor() == null) {
+                throw new IllegalArgumentException("Fornecedor é obrigatório");
             }
-
-            // Realiza a transferência
-            estoqueOrigem.setQuantidade(estoqueOrigem.getQuantidade() - movimentacao.getQuantidade());
-            estoqueDestino.setQuantidade(estoqueDestino.getQuantidade() + movimentacao.getQuantidade());
-
-            // Atualiza a data da última movimentação
-            LocalDateTime agora = LocalDateTime.now();
-            estoqueOrigem.setUltimaMovimentacao(agora);
-            estoqueDestino.setUltimaMovimentacao(agora);
-            movimentacao.setDataMovimentacao(agora);
-
-            // Atualiza fornecedor e preço de custo no estoque destino
-            if (movimentacao.getFornecedor() != null) {
-                estoqueDestino.setFornecedor(movimentacao.getFornecedor());
+            if (movimentacao.getPrecoCusto() == null || movimentacao.getPrecoCusto().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Preço de custo é obrigatório e deve ser maior que zero");
             }
-            if (movimentacao.getPrecoCusto() != null) {
-                estoqueDestino.setPrecoCusto(movimentacao.getPrecoCusto());
+            
+            // 1. Buscar estoque na matriz
+            System.out.println("1. Buscando estoque na matriz para o produto: " + movimentacao.getProduto().getDescricao());
+            Estoque estoqueMatriz = estoqueRepository.findByProdutoAndObraIsNull(movimentacao.getProduto())
+                .orElseThrow(() -> new IllegalStateException("Estoque não encontrado na matriz"));
+            System.out.println("   Estoque encontrado na matriz. Quantidade atual: " + estoqueMatriz.getQuantidade());
+                
+            // 2. Verificar se há quantidade suficiente
+            if (estoqueMatriz.getQuantidade() < movimentacao.getQuantidade()) {
+                throw new IllegalStateException("Quantidade insuficiente em estoque na matriz. Disponível: " + 
+                    estoqueMatriz.getQuantidade() + ", Solicitado: " + movimentacao.getQuantidade());
             }
-
-            // Salva os estoques
-            estoqueRepository.save(estoqueOrigem);
-            estoqueRepository.save(estoqueDestino);
-
-            // Salva e retorna a movimentação
-            return movimentacaoRepository.save(movimentacao);
+            System.out.println("2. Quantidade suficiente verificada");
+            
+            // 3. Retirar da matriz
+            System.out.println("3. Retirando " + movimentacao.getQuantidade() + " unidades da matriz");
+            estoqueMatriz.setQuantidade(estoqueMatriz.getQuantidade() - movimentacao.getQuantidade());
+            estoqueMatriz = estoqueRepository.save(estoqueMatriz);
+            System.out.println("   Novo estoque na matriz: " + estoqueMatriz.getQuantidade());
+            
+            // 4. Buscar ou criar estoque na obra
+            System.out.println("4. Buscando ou criando estoque na obra: " + movimentacao.getDestino().getNome());
+            Estoque estoqueObra = estoqueRepository.findByProdutoAndObra(movimentacao.getProduto(), movimentacao.getDestino())
+                .orElseGet(() -> {
+                    System.out.println("   Criando novo estoque na obra");
+                    Estoque novo = new Estoque();
+                    novo.setProduto(movimentacao.getProduto());
+                    novo.setObra(movimentacao.getDestino());
+                    novo.setQuantidade(0);
+                    return novo;
+                });
+                
+            // 5. Adicionar na obra
+            System.out.println("5. Adicionando " + movimentacao.getQuantidade() + " unidades na obra");
+            estoqueObra.setQuantidade(estoqueObra.getQuantidade() + movimentacao.getQuantidade());
+            estoqueObra.setFornecedor(movimentacao.getFornecedor());
+            estoqueObra.setPrecoCusto(movimentacao.getPrecoCusto());
+            estoqueObra.setUltimaMovimentacao(LocalDateTime.now());
+            estoqueObra = estoqueRepository.save(estoqueObra);
+            System.out.println("   Novo estoque na obra: " + estoqueObra.getQuantidade());
+            
+            // 6. Registrar a movimentação
+            System.out.println("6. Registrando a movimentação");
+            movimentacao.setDataMovimentacao(LocalDateTime.now());
+            MovimentacaoEstoque movimentacaoSalva = movimentacaoRepository.save(movimentacao);
+            
+            // 7. Forçar flush para garantir que tudo foi salvo
+            estoqueRepository.flush();
+            movimentacaoRepository.flush();
+            
+            System.out.println("=== Transferência concluída com sucesso ===\n");
+            return movimentacaoSalva;
             
         } catch (Exception e) {
+            System.err.println("ERRO durante a transferência: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Erro ao realizar transferência: " + e.getMessage(), e);
         }
     }
@@ -224,6 +221,15 @@ public class EstoqueService {
 
     @Transactional
     public void atualizarEstoque(Estoque estoque) {
+        if (estoque == null) {
+            throw new RuntimeException("Estoque não pode ser nulo");
+        }
+        if (estoque.getQuantidade() == null) {
+            estoque.setQuantidade(0);
+        }
+        if (estoque.getUltimaMovimentacao() == null) {
+            estoque.setUltimaMovimentacao(LocalDateTime.now());
+        }
         estoqueRepository.save(estoque);
     }
 } 

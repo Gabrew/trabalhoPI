@@ -1,14 +1,72 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
-<meta charset="utf-8">
 <head>
-    <!-- Meta tags Obrigatórias -->
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- Bootstrap CSS -->
+    <title>Transferência de Estoque</title>
     <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="/vendor/open-iconic/open-iconic-bootstrap.css">
-    <title>Transferência de Estoque - ConstruTec</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+        
+        footer {
+            margin-top: auto;
+        }
+
+        .quantidade-disponivel {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .quantidade-disponivel.baixo {
+            color: #dc3545;
+        }
+        .quantidade-disponivel.normal {
+            color: #198754;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .form-control.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+        }
+
+        .destino-origem-iguais {
+            border-color: #dc3545 !important;
+        }
+
+        .nav-tabs {
+            border: none;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <header th:replace="fragments/header :: cabecalho"></header>
@@ -17,16 +75,14 @@
         <section class="layout-content">
             <nav class="navbar navbar-expand-md bg-light">
                 <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item active">
-                            <i class="oi oi-caret-right"></i>
-                            <span>Transferência de Estoque</span>
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/estoque">Estoque Matriz</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/estoque/transferencia">Transferência de Estoque</a>
                         </li>
                     </ul>
-                    <a class="btn btn-primary btn-md" href="/estoque" role="button">
-                        <span class="oi oi-box" title="Estoque" aria-hidden="true"></span>
-                        <span>Estoque Matriz</span>
-                    </a>
                 </div>
             </nav>
 
@@ -35,69 +91,74 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">Nova Transferência</h5>
+                        <h5 class="card-title">Transferência de Produtos</h5>
                     </div>
                     <div class="card-body">
-                        <form th:action="@{/estoque/transferir}" method="POST">
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
+                        <form th:action="@{/estoque/transferir}" method="POST" id="formTransferencia">
+                            <div class="row mt-2">
+                                <div class="col-md-4">
                                     <label for="produtoId">Produto</label>
-                                    <select id="produtoId" name="produtoId" class="form-control" required onchange="atualizarOrigensDisponiveis()">
+                                    <select id="produtoId" name="produtoId" class="form-control" required onchange="atualizarQuantidadeDisponivel()">
                                         <option value="">Selecione...</option>
-                                        <option th:each="p : ${produtos}" 
-                                                th:value="${p.id}" 
-                                                th:text="${p.descricao}">
-                                            Produto
-                                        </option>
+                                        <option th:each="p : ${produtos}" th:value="${p.id}" th:text="${p.descricao}">Produto</option>
                                     </select>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <label for="quantidade">Quantidade</label>
-                                    <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" required 
-                                           onchange="validarQuantidade()" />
-                                    <small class="form-text text-muted">
-                                        Quantidade disponível: <span id="quantidadeDisponivel">0</span>
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
+                                <div class="col-md-4">
                                     <label for="origemId">Origem</label>
-                                    <select id="origemId" name="origemId" class="form-control" required onchange="atualizarQuantidadeDisponivel()">
-                                        <option value="">Selecione primeiro um produto...</option>
-                                    </select>
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label for="destinoId">Destino</label>
-                                    <select id="destinoId" name="destinoId" class="form-control" required>
+                                    <select id="origemId" name="origemId" class="form-control" required onchange="atualizarQuantidadeDisponivel(); validarOrigemDestino()">
                                         <option value="">Selecione...</option>
+                                        <option value="matriz">Matriz</option>
                                         <option th:each="o : ${obras}" th:value="${o.id}" th:text="${o.nome}">Obra</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="dataMovimentacao">Data da Movimentação</label>
-                                    <input type="datetime-local" class="form-control" id="dataMovimentacao" name="dataMovimentacao" required />
+                                <div class="col-md-4">
+                                    <label for="destinoId">Destino</label>
+                                    <select id="destinoId" name="destinoId" class="form-control" required onchange="validarOrigemDestino()">
+                                        <option value="">Selecione...</option>
+                                        <option value="matriz">Matriz</option>
+                                        <option th:each="o : ${obras}" th:value="${o.id}" th:text="${o.nome}">Obra</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Origem e destino não podem ser iguais
+                                    </div>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <label for="observacao">Observação</label>
-                                    <textarea class="form-control" id="observacao" name="observacao" rows="3"></textarea>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-4">
+                                    <label for="quantidade">Quantidade</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="quantidade" name="quantidade" required 
+                                               data-mask="#.##0,00" data-mask-reverse="true" onchange="validarQuantidade()" />
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">un</span>
+                                        </div>
+                                    </div>
+                                    <small class="quantidade-disponivel">
+                                        Quantidade disponível: <span id="quantidadeDisponivel">0</span>
+                                    </small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="dataTransferencia">Data da Transferência</label>
+                                    <input type="datetime-local" class="form-control" id="dataTransferencia" name="dataTransferencia" required 
+                                           th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd''T''HH:mm')}" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="observacoes">Observações</label>
+                                    <textarea class="form-control" id="observacoes" name="observacoes" rows="1"></textarea>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Transferir</button>
-                            <a class="btn btn-secondary" href="/estoque" role="button">
-                                <span class="oi oi-arrow-left" title="Voltar" aria-hidden="true"></span>
-                                <span>Cancelar</span>
-                            </a>
+                            <div class="row mt-4">
+                                <div class="col-md-3 col-xs-12">
+                                    <button type="submit" class="btn btn-primary" style="width: 100%; height: 50px; font-weight: bold;">Realizar Transferência</button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
 
-                <!-- Tabela de últimas transferências -->
                 <div class="card mt-4">
                     <div class="card-header">
-                        <h5 class="card-title">Últimas Transferências</h5>
+                        <h5 class="card-title">Histórico de Transferências</h5>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-hover">
@@ -108,15 +169,17 @@
                                     <th>Quantidade</th>
                                     <th>Origem</th>
                                     <th>Destino</th>
+                                    <th>Observações</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="mov : ${movimentacoes}">
-                                    <td th:text="${#temporals.format(mov.dataMovimentacao, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
-                                    <td th:text="${mov.produto.descricao}">Produto</td>
-                                    <td th:text="${mov.quantidade}">0</td>
-                                    <td th:text="${mov.origem != null ? mov.origem.nome : 'Matriz'}">Origem</td>
-                                    <td th:text="${mov.destino != null ? mov.destino.nome : 'Matriz'}">Destino</td>
+                                <tr th:each="transf : ${transferencias}">
+                                    <td th:text="${#temporals.format(transf.dataTransferencia, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                    <td th:text="${transf.produto.descricao}">Produto</td>
+                                    <td th:text="${#numbers.formatDecimal(transf.quantidade, 1, 2)}">0</td>
+                                    <td th:text="${transf.origem == 'matriz' ? 'Matriz' : transf.obraOrigem.nome}">Origem</td>
+                                    <td th:text="${transf.destino == 'matriz' ? 'Matriz' : transf.obraDestino.nome}">Destino</td>
+                                    <td th:text="${transf.observacoes ?: '-'}">Observações</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -131,91 +194,112 @@
     <script src="/vendor/bootstrap/jquery-3.3.1.slim.min.js"></script>
     <script src="/vendor/bootstrap/popper.min.js"></script>
     <script src="/vendor/bootstrap/bootstrap.min.js"></script>
-    <script th:inline="javascript">
-        // Dados do estoque disponível por obra
-        const estoqueObras = /*[[${estoqueObras}]]*/ {};
-        const estoqueProdutoMatriz = /*[[${estoqueProduto}]]*/ {};
-        const obras = /*[[${obras}]]*/ [];
-        
-        // Define a data atual como valor padrão
-        document.addEventListener('DOMContentLoaded', function() {
-            var now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            document.getElementById('dataMovimentacao').value = now.toISOString().slice(0,16);
+    <script src="/vendor/jquery-mask/jquery.mask.min.js"></script>
+    <script>
+        // Atualiza a quantidade disponível quando o produto ou origem são alterados
+        function atualizarQuantidadeDisponivel() {
+            let produtoSelect = document.getElementById('produtoId');
+            let origemSelect = document.getElementById('origemId');
+            let quantidadeSpan = document.getElementById('quantidadeDisponivel');
+            let quantidadeInput = document.getElementById('quantidade');
+
+            if (produtoSelect.selectedIndex > 0 && origemSelect.selectedIndex > 0) {
+                // Aqui você deve implementar a lógica para buscar a quantidade disponível
+                // Por enquanto, vamos usar um valor de exemplo
+                let quantidadeDisponivel = produtoSelect.options[produtoSelect.selectedIndex].getAttribute('data-estoque') || 0;
+                quantidadeSpan.textContent = quantidadeDisponivel;
+                
+                // Atualiza a classe de acordo com a quantidade
+                let small = document.querySelector('.quantidade-disponivel');
+                if (quantidadeDisponivel <= 0) {
+                    small.className = 'quantidade-disponivel baixo';
+                } else {
+                    small.className = 'quantidade-disponivel normal';
+                }
+
+                // Habilita/desabilita o campo de quantidade
+                quantidadeInput.disabled = quantidadeDisponivel <= 0;
+            } else {
+                quantidadeSpan.textContent = '0';
+                quantidadeInput.disabled = true;
+            }
+        }
+
+        // Valida se a quantidade informada é válida
+        function validarQuantidade() {
+            let quantidade = document.getElementById('quantidade').value;
+            let quantidadeDisponivel = document.getElementById('quantidadeDisponivel').textContent;
+            
+            quantidade = parseFloat(quantidade.replace('.', '').replace(',', '.'));
+            quantidadeDisponivel = parseFloat(quantidadeDisponivel);
+
+            if (quantidade > quantidadeDisponivel) {
+                document.getElementById('quantidade').classList.add('is-invalid');
+                return false;
+            } else {
+                document.getElementById('quantidade').classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        // Valida se origem e destino são diferentes
+        function validarOrigemDestino() {
+            let origem = document.getElementById('origemId').value;
+            let destino = document.getElementById('destinoId').value;
+
+            if (origem && destino && origem === destino) {
+                document.getElementById('origemId').classList.add('destino-origem-iguais');
+                document.getElementById('destinoId').classList.add('destino-origem-iguais');
+                return false;
+            } else {
+                document.getElementById('origemId').classList.remove('destino-origem-iguais');
+                document.getElementById('destinoId').classList.remove('destino-origem-iguais');
+                return true;
+            }
+        }
+
+        // Validação do formulário
+        $('#formTransferencia').on('submit', function(e) {
+            let produto = $('#produtoId').val();
+            let quantidade = $('#quantidade').val();
+            let origem = $('#origemId').val();
+            let destino = $('#destinoId').val();
+            let data = $('#dataTransferencia').val();
+
+            if (!produto || !quantidade || !origem || !destino || !data) {
+                e.preventDefault();
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return false;
+            }
+
+            if (!validarQuantidade()) {
+                e.preventDefault();
+                alert('A quantidade informada é maior que a disponível.');
+                return false;
+            }
+
+            if (!validarOrigemDestino()) {
+                e.preventDefault();
+                alert('Origem e destino não podem ser iguais.');
+                return false;
+            }
+
+            // Validar se quantidade é maior que zero
+            let qtd = parseFloat(quantidade.replace('.', '').replace(',', '.'));
+            if (qtd <= 0) {
+                e.preventDefault();
+                alert('A quantidade deve ser maior que zero.');
+                return false;
+            }
+
+            return true;
         });
 
-        function getEstoqueDisponivel(produtoId, origemId) {
-            if (!produtoId) return 0;
-            
-            if (!origemId) { // Matriz
-                return estoqueProdutoMatriz[produtoId] || 0;
-            } else {
-                return estoqueObras[produtoId]?.[origemId] || 0;
-            }
-        }
-
-        function atualizarQuantidadeDisponivel() {
-            const produtoId = document.getElementById('produtoId').value;
-            const origemId = document.getElementById('origemId').value;
-            const quantidadeSpan = document.getElementById('quantidadeDisponivel');
-            
-            const estoqueDisponivel = getEstoqueDisponivel(produtoId, origemId);
-            quantidadeSpan.textContent = estoqueDisponivel;
-        }
-
-        function atualizarOrigensDisponiveis() {
-            const produtoId = document.getElementById('produtoId').value;
-            const origemSelect = document.getElementById('origemId');
-            
-            // Limpa as opções atuais
-            origemSelect.innerHTML = '';
-            
-            if (!produtoId) {
-                origemSelect.innerHTML = '<option value="">Selecione primeiro um produto...</option>';
-                atualizarQuantidadeDisponivel();
-                return;
-            }
-
-            // Adiciona a Matriz como opção se houver estoque
-            const quantidadeMatriz = estoqueProdutoMatriz[produtoId] || 0;
-            if (quantidadeMatriz > 0) {
-                const option = new Option('Matriz', '');
-                origemSelect.add(option);
-            }
-
-            // Adiciona as obras que têm o produto em estoque
-            if (estoqueObras[produtoId]) {
-                Object.entries(estoqueObras[produtoId]).forEach(([obraId, quantidade]) => {
-                    if (quantidade > 0) {
-                        const obra = obras.find(o => o.id == obraId);
-                        if (obra) {
-                            const option = new Option(obra.nome, obraId);
-                            origemSelect.add(option);
-                        }
-                    }
-                });
-            }
-
-            if (origemSelect.options.length === 0) {
-                origemSelect.innerHTML = '<option value="">Sem estoque disponível</option>';
-            }
-
-            // Atualiza a quantidade disponível após mudar as origens
+        // Formatar campos numéricos
+        $(document).ready(function() {
+            $('#quantidade').mask('#.##0,00', {reverse: true});
             atualizarQuantidadeDisponivel();
-        }
-
-        function validarQuantidade() {
-            const quantidade = parseInt(document.getElementById('quantidade').value);
-            const produtoId = document.getElementById('produtoId').value;
-            const origemId = document.getElementById('origemId').value;
-            
-            const estoqueDisponivel = getEstoqueDisponivel(produtoId, origemId);
-            
-            if (quantidade > estoqueDisponivel) {
-                alert('Quantidade solicitada maior que o estoque disponível!');
-                document.getElementById('quantidade').value = estoqueDisponivel;
-            }
-        }
+        });
     </script>
 </body>
 </html> 

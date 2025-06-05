@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.css"
 	crossorigin="anonymous">
-<title>Controle de Estoque</title>
+<link rel="stylesheet" href="/css/custom.css">
+<title>Lista de Clientes</title>
 
 <style type="text/css">
 
@@ -70,175 +71,195 @@
 
 	<header th:replace="fragments/header :: cabecalho"></header>
 
-	<main class="container" style="min-height: 450px;">
-		<div class="com-md-12 mt-3">
-			<section>
-				<div style="border-bottom: 1px solid #343A40;">
-					<h2>Consulta de Fornecedores</h2>
+	<main>
+		<div class="container mt-4">
+			<div th:replace="fragments/alert"></div>
+			
+			<!-- Seção de Busca -->
+			<div class="search-section">
+				<div class="search-buttons">
+					<button class="btn btn-secondary" type="button" data-bs-toggle="collapse" 
+							data-bs-target="#collapseNome" aria-controls="collapseNome">
+						Nome
+					</button>
+					<button class="btn btn-secondary" type="button" data-bs-toggle="collapse" 
+							data-bs-target="#collapseCpf" aria-controls="collapseCpf">
+						CPF
+					</button>
 				</div>
 				
+				<div class="collapse mt-3" id="collapseNome">
+					<div class="card card-body">
+						<form method="GET" th:action="@{/clientes/buscar/nome}" class="row g-3">
+							<div class="col-auto">
+								<input type="text" class="form-control" name="nome" placeholder="Digite o nome">
+							</div>
+							<div class="col-auto">
+								<button type="submit" class="btn btn-primary">Pesquisar</button>
+							</div>
+						</form>
+					</div>
+				</div>
 				
-				<div class="row">
-					<div class="col-md-12 mt-3">
-
-						<p>
-							<i class="oi oi-magnifying-glass"></i><span></span>
-							<button class="btn btn-secondary" type="button"
-								data-toggle="collapse" data-target="#collapseNome"
-								aria-controls="collapseNome">Nome</button>
-							<button class="btn btn-secondary" type="button"
-								data-toggle="collapse" data-target="#collapseCpf"
-								aria-controls="collapseCargo">CPF</button>
-						</p>
-						<div class="row">
-							<div class="col">
-								<div class="collapse" id="collapseNome">
-									<nav class="navbar navbar-light bg-light">
-										<form class="form-inline" method="GET"
-											th:action="@{/clientes/buscar/nome}">
-											<input class="form-control mr-sm-2" type="search"
-												placeholder="digite o nome do cliente" aria-label="Search" th:name="nome" />
-											<button class="btn btn-outline-primary my-2 my-sm-0">Pesquisar</button>
-										</form>
-									</nav>
-								</div>
+				<div class="collapse mt-3" id="collapseCpf">
+					<div class="card card-body">
+						<form method="GET" th:action="@{/clientes/buscar/cpf}" class="row g-3">
+							<div class="col-auto">
+								<input type="text" class="form-control" name="cpf" placeholder="Digite o CPF" data-mask="000.000.000-00">
 							</div>
-						</div>
-						<div class="row">
-							<div class="col">
-								<div class="collapse" id="collapseCpf">
-									<nav class="navbar navbar-light bg-light">
-										<form class="form-inline" method="GET"
-											th:action="@{/clientes/buscar/cpf}">
-											<input class="form-control mr-sm-2" type="search"
-												placeholder="digite o cpf do cliente" aria-label="Search" th:name="cpf" data-mask="000.000.000-00" />
-											<button class="btn btn-outline-primary my-2 my-sm-0">Pesquisar</button>
-										</form>
-									</nav>
-								</div>
+							<div class="col-auto">
+								<button type="submit" class="btn btn-primary">Pesquisar</button>
 							</div>
-						</div>
+						</form>
+					</div>
 				</div>
-			</div>		
-						<div th:replace="fragments/alert"></div>
-						
-						<table class="table table-striped">
-							<thead>
-								<tr>
-									<th scope="col">#</th>
-									<th scope="col">Nome</th>
-									<th scope="col">RG</th>
-									<th scope="col">CPF</th>
-									<th scope="col">Endereço</th>
-									<th scope="col">Celular</th>
-									<th scope="col" colspan="2" sec:authorize="hasRole('ROLE_ADMIN')">Ações</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr th:each="cli : ${pageCliente.registros}">
-									<th style="width: 2%" scope="row" th:text="${cli.id}">1</th>
-									<td th:text="|${cli.nome} ${cli.sobrenome}|"></td>
-									<td th:text="${cli.rg}"></td>
-									<td th:text="${cli.cpf}"></td>
-									<td style="width: 5%; text-align: center;">
-										<button type="button" class="btn btn-secondary btn-sm" data-container="body"
-		                                    data-toggle="popover" data-placement="top" 
-		                                    th:attr="data-content=${#strings.concat(
-											cli.endereco.logradouro, ', ',
-											cli.endereco.numero, ' ',
-											cli.endereco.complemento, ' - ',
-											cli.endereco.bairro, ', ',
-											cli.endereco.cidade, ' - ',
-											cli.endereco.uf.sigla, ' - ',
-											cli.endereco.cep
-											)}">
-	                                		<span class="oi oi-eye" title="Visualizar" aria-hidden="true"></span>
-	                            		</button>
-									</td>
-									<td th:text="${cli.celular}"></td>
-									<td style="width: 3%;" sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/clientes/editar/{id}(id=${cli.id})}" title="Editar"> 
-										<span class="oi oi-pencil"></span>
-									</a></td>
-									<td style="width: 3%;" sec:authorize="hasRole('ROLE_ADMIN')"><a href="#" title="Excluir" data-toggle="modal" data-target="#myModal" th:id="${'btn_clientes/excluir/' + cli.id}">
-										<span class="oi oi-trash"></span>
-									</a></td>
-								</tr>
-							</tbody>
-						</table>
-						
-						<nav aria-label="Navegação de página exemplo">
-							<ul class="pagination justify-content-center">
-								<li class="page-item"><a class="page-link" th:href="@{/clientes/listar(page=${1})}" tabindex="-1">Primeira</a></li>
-								<li th:class="${pageCliente.pagina == 1} ? 'page-item disabled' : 'page-item'"><a class="page-link"
-									th:href="@{/clientes/listar(page=${pageCliente.pagina - 1})}" tabindex="-1">Anterior</a></li>
-								<li class="page-item">
-									<span class="page-link" th:text="|${pageCliente.pagina} de ${pageCliente.totalDePagina}|"></span>
-								</li>
-								<li th:class="${pageCliente.pagina == pageCliente.totalDePagina} ? 'page-item disabled' : 'page-item'"><a class="page-link" 
-									th:href="@{/clientes/listar(page=${pageCliente.pagina + 1})}" >Próximo</a>
-								</li>
-								<li class="page-item"><a class="page-link" th:href="@{/clientes/listar(page=${pageCliente.totalDePagina})}" tabindex="-1">Última</a></li>
-							</ul>
-						</nav>
-					</section>
-				</div>
+			</div>
+			
+			<!-- Tabela de Clientes -->
+			<div class="table-responsive">
+				<table class="table table-striped table-hover">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Nome</th>
+							<th>CPF</th>
+							<th>Endereço</th>
+							<th>Celular</th>
+							<th>Ações</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="cli : ${pageCliente.registros}">
+							<td th:text="${cli.id}">1</td>
+							<td th:text="${cli.nome + ' ' + cli.sobrenome}">Nome do Cliente</td>
+							<td th:text="${cli.cpf}">000.000.000-00</td>
+							<td th:text="${cli.endereco.logradouro + ', ' + cli.endereco.numero + ' - ' + cli.endereco.bairro + ', ' + cli.endereco.cidade + '/' + cli.endereco.uf}">Endereço do Cliente</td>
+							<td th:text="${cli.celular}">(00) 00000-0000</td>
+							<td>
+								<a class="btn btn-info btn-sm" th:href="@{/clientes/editar/{id} (id=${cli.id})}" role="button">
+									<span class="oi oi-pencil" title="Editar" aria-hidden="true"></span>
+								</a>
+								<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" 
+										th:data-bs-target="'#excluirModal' + ${cli.id}">
+									<span class="oi oi-trash"></span>
+								</button>
+								
+								<!-- Modal de Confirmação -->
+								<div class="modal fade" th:id="'excluirModal' + ${cli.id}" tabindex="-1" role="dialog" 
+									 aria-labelledby="excluirModalLabel" aria-hidden="true">
+									<div class="modal-dialog" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<h5 class="modal-title" id="excluirModalLabel">Confirmar Exclusão</h5>
+												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+											</div>
+											<div class="modal-body">
+												Deseja realmente excluir este cliente?
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+												<a th:href="@{/clientes/excluir/{id}(id=${cli.id})}" class="btn btn-danger">Excluir</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<!-- Paginação -->
+			<nav aria-label="Navegação de página" th:if="${pageCliente.totalDePagina > 1}">
+				<ul class="pagination justify-content-center">
+					<li class="page-item" th:classappend="${pageCliente.pagina == 1} ? 'disabled'">
+						<a class="page-link" th:href="@{/clientes/listar(page=1)}" tabindex="-1">Primeira</a>
+					</li>
+					<li class="page-item" th:classappend="${pageCliente.pagina == 1} ? 'disabled'">
+						<a class="page-link" th:href="@{/clientes/listar(page=${pageCliente.pagina - 1})}" tabindex="-1">Anterior</a>
+					</li>
+					<li class="page-item">
+						<span class="page-link" th:text="|${pageCliente.pagina} de ${pageCliente.totalDePagina}|"></span>
+					</li>
+					<li class="page-item" th:classappend="${pageCliente.pagina == pageCliente.totalDePagina} ? 'disabled'">
+						<a class="page-link" th:href="@{/clientes/listar(page=${pageCliente.pagina + 1})}">Próxima</a>
+					</li>
+					<li class="page-item" th:classappend="${pageCliente.pagina == pageCliente.totalDePagina} ? 'disabled'">
+						<a class="page-link" th:href="@{/clientes/listar(page=${pageCliente.totalDePagina})}">Última</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
 	</main>
 
 	<footer th:replace="fragments/footer :: rodape"></footer>
 
-	<div th:replace="fragments/modal :: modal"></div>
-
-	<script src="/vendor/bootstrap/jquery-3.1.0.js"></script>
-	<script th:src="@{/webjars/jquery-mask-plugin/dist/jquery.mask.min.js}"></script>
-	<script src="/vendor/bootstrap/popper.min.js"></script>
-	<script src="/vendor/bootstrap/bootstrap.min.js"></script>
-
+	<!-- Scripts -->
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
 	<script type="text/javascript">
-	
-		$(function() {
+		$(document).ready(function(){
+			// Inicializar popovers
 			$('[data-toggle="popover"]').popover();
+
+			// Aplicar máscara ao campo de busca por CPF com feedback visual
+			$('input[name="cpf"]').mask('000.000.000-00', {
+				clearIfNotMatch: true,
+				placeholder: '___.___.___-__',
+				onChange: function(value, e) {
+					var input = $(e.target);
+					var padraoCPF = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+					
+					if (value && padraoCPF.test(value)) {
+						input.addClass('is-valid').removeClass('is-invalid');
+					} else if (value) {
+						input.addClass('is-invalid').removeClass('is-valid');
+					} else {
+						input.removeClass('is-valid').removeClass('is-invalid');
+					}
+				}
+			});
+
+			// Validar CPF antes da busca
+			$('form[action*="/clientes/buscar/cpf"]').on('submit', function(e) {
+				var cpf = $('input[name="cpf"]').val();
+				var padraoCPF = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+				
+				if (!cpf || !padraoCPF.test(cpf)) {
+					e.preventDefault();
+					alert('Por favor, insira um CPF válido no formato 000.000.000-00');
+					return false;
+				}
+			});
+
+			// Ocultar alertas após 5 segundos
+			setTimeout(function(){
+				$(".alert").fadeOut("slow", function(){
+					$(this).alert('close');
+				});
+			}, 5000);
 		});
-    
-    	
-    	$(document).ready(function(){
-    		//Efeito LigthBox
-    		$('.galeria img').click(function(){
-    			$('.bg').animate({'opacity':'0.60'}, 500, 'linear');
-    			$('.bg, .lb').css('display', 'block');
-    			
-    			var big = $(this).attr('src');
-    			
-    			$('.lb img').attr('src', big);
-    			$('.lb img').animate({'opacity':'1.00'}, 500, 'linear');
-    		});
-    		
-    		$('.close span').click(function(){
-    			$('.bg, .lb').css('display', 'none');
-    			$('.lb img').css('opacity', '0');
-    		});
-    		
-    		//Ocultar alert
-    	    setTimeout(function(){
-    			$(".alert").fadeOut("slow", function(){
-    				$(this).alert('close');
-    			});
-    		}, 5000);
-    	});
-    	
-    	//Exclusão de fornecedor
-		var url = '';
-	    
-	    $('a[id*="btn_"]').click(function() {
-	    	url = "/" + $(this).attr('id').split("_")[1];	
-	    	console.log(url);
-	    });
-	    
-	    $('#ok_confirm').click(function() {
-	    	document.location.href = url;	
-	    	console.log("Excluiu");
-	    });
-    </script>
+	</script>
+
+	<style>
+	.form-control.is-valid {
+		border-color: #28a745;
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+		background-repeat: no-repeat;
+		background-position: right calc(.375em + .1875rem) center;
+		background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+	}
+
+	.form-control.is-invalid {
+		border-color: #dc3545;
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23dc3545' viewBox='-2 -2 7 7'%3e%3cpath stroke='%23dc3545' d='M0 0l3 3m0-3L0 3'/%3e%3ccircle r='.5'/%3e%3ccircle cx='3' r='.5'/%3e%3ccircle cy='3' r='.5'/%3e%3ccircle cx='3' cy='3' r='.5'/%3e%3c/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right calc(.375em + .1875rem) center;
+		background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+	}
+	</style>
 
 </body>
 </html>

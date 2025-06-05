@@ -34,7 +34,7 @@ public class Estoque extends AbstractEntity<Long> {
     private Fornecedor fornecedor;
 
     @NumberFormat(style = Style.CURRENCY, pattern = "#,##0.00")
-    @Column(name = "preco_custo", columnDefinition = "DECIMAL(7,2)")
+    @Column(name = "preco_custo", columnDefinition = "DECIMAL(10,2)")
     private BigDecimal precoCusto;
     
     public Produto getProduto() {

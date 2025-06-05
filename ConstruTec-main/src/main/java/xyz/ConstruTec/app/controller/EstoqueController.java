@@ -64,6 +64,7 @@ public class EstoqueController {
         // Busca todos os produtos e obras
         model.addAttribute("produtos", produtoService.buscarTodos());
         model.addAttribute("obras", obraService.buscarTodasObras());
+        model.addAttribute("fornecedores", fornecedorService.buscarTodos());
         
         // Mapa de estoque por produto na matriz
         Map<Long, Integer> estoqueProduto = new HashMap<>();
@@ -137,6 +138,8 @@ public class EstoqueController {
             @RequestParam(value = "origemId", required = false) Long origemId,
             @RequestParam(value = "destinoId", required = false) Long destinoId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime dataMovimentacao,
+            @RequestParam("fornecedorId") Long fornecedorId,
+            @RequestParam("precoCusto") BigDecimal precoCusto,
             @RequestParam(value = "observacao", required = false) String observacao,
             RedirectAttributes attr) {
         
@@ -170,6 +173,16 @@ public class EstoqueController {
                 }
                 movimentacao.setDestino(destino);
             }
+            
+            // Busca e seta o fornecedor
+            Fornecedor fornecedor = fornecedorService.buscarPorId(fornecedorId);
+            if (fornecedor == null) {
+                throw new RuntimeException("Fornecedor não encontrado");
+            }
+            movimentacao.setFornecedor(fornecedor);
+            
+            // Seta o preço de custo
+            movimentacao.setPrecoCusto(precoCusto);
             
             // Valida origem e destino
             if (movimentacao.getOrigem() == null && movimentacao.getDestino() == null) {
@@ -231,5 +244,26 @@ public class EstoqueController {
             return "estoque/historico";
         }
         return "redirect:/estoque";
+    }
+
+    @GetMapping("/entrada")
+    public String exibirFormularioEntrada(ModelMap model) {
+        try {
+            List<Produto> produtos = produtoService.buscarTodos();
+            List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
+            
+            // Log para debug
+            System.out.println("Total de produtos: " + produtos.size());
+            System.out.println("Total de fornecedores: " + fornecedores.size());
+            
+            model.addAttribute("produtos", produtos);
+            model.addAttribute("fornecedores", fornecedores);
+            return "estoque/entrada";
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar formulário de entrada: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("erro", "Erro ao carregar formulário: " + e.getMessage());
+            return "error";
+        }
     }
 } 

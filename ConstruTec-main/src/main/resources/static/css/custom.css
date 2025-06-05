@@ -1,0 +1,325 @@
+/* Estilos para garantir que o rodapé fique sempre no final da página */
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+main {
+    flex: 1 0 auto;
+    padding-bottom: 2rem;
+}
+
+/* Estilos do cabeçalho */
+.navbar {
+    background-color: #343a40 !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #ffffff;
+}
+
+/* Estilos do rodapé */
+footer {
+    margin-top: auto;
+    width: 100%;
+    background-color: #343a40 !important;
+    color: #ffffff;
+    padding: 1rem 0;
+}
+
+footer .text-muted {
+    color: #ffffff !important;
+}
+
+/* Estilos para títulos das páginas */
+.page-header {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.page-header h2 {
+    margin: 0;
+}
+
+/* Estilos para seção de busca */
+.search-section {
+    margin-bottom: 2rem;
+}
+
+.search-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Estilos para tabelas */
+.table {
+    margin-bottom: 2rem;
+}
+
+.table th {
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+/* Estilos para botões */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+/* Estilos para badges */
+.badge {
+    padding: 0.5em 0.75em;
+    font-size: 0.875em;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Estilos para formulários */
+.form-control {
+    border-radius: 0.25rem;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-control.is-valid {
+    border-color: #28a745;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23dc3545' viewBox='-2 -2 7 7'%3e%3cpath stroke='%23dc3545' d='M0 0l3 3m0-3L0 3'/%3e%3ccircle r='.5'/%3e%3ccircle cx='3' r='.5'/%3e%3ccircle cy='3' r='.5'/%3e%3ccircle cx='3' cy='3' r='.5'/%3e%3c/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Estilos para alertas */
+.alert {
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* Estilos para modais */
+.modal-header {
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+.modal-header .btn-close {
+    color: #ffffff;
+    text-shadow: none;
+    opacity: 0.75;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+/* Estilos para paginação */
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-link {
+    color: #343a40;
+}
+
+.page-link:hover {
+    color: #121416;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-item.active .page-link {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* Estilos para containers */
+.container, .container-fluid {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* Estilos para tabelas responsivas */
+.table-responsive {
+    margin-bottom: 2rem;
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+}
+
+/* Estilos para seção de busca */
+.search-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-buttons .btn {
+    margin-right: 5px;
+    margin-bottom: 5px;
+    background-color: #343a40;
+    border-color: #343a40;
+    color: #ffffff;
+}
+
+.search-buttons .btn:hover {
+    background-color: #23272b;
+    border-color: #23272b;
+}
+
+.search-form {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-top: 10px;
+}
+
+/* Estilos para tabelas */
+.table thead th {
+    background-color: #343a40;
+    color: #ffffff;
+    border-bottom: 2px solid #454d55;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Estilos para botões e badges */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Estilos para popovers */
+.popover {
+    max-width: 300px;
+}
+
+/* Estilos para imagens */
+.galeria {
+    width: 5%;
+    text-align: center;
+}
+
+.galeria img:hover {
+    cursor: pointer;
+}
+
+/* Estilos para ícones */
+.oi {
+    font-size: 1rem;
+    vertical-align: middle;
+} 

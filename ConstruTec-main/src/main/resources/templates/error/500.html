@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Erro 500</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Erro no Servidor</h1>
+    
+    <div th:if="${erro}" style="color: red; margin: 20px;">
+        <h2>Detalhes do Erro:</h2>
+        <p th:text="${erro}">Mensagem de erro</p>
+    </div>
+    
+    <div style="margin: 20px;">
+        <a href="/" style="color: blue;">Voltar para a página inicial</a>
+    </div>
+</body>
+</html> 

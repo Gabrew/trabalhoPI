@@ -13,7 +13,7 @@ public class ClienteDao extends AbstractDao<Cliente, Long> {
 	public PaginacaoUtil<Cliente> buscaPaginada(int pagina) {
 		int tamanho = 5;
 		int inicio = (pagina - 1) * tamanho;
-		List<Cliente> produtos = getEntityManager().createQuery("select p from Cliente p order by p.nome asc", Cliente.class)
+		List<Cliente> clientes = getEntityManager().createQuery("select c from Cliente c order by c.nome asc", Cliente.class)
 				.setFirstResult(inicio)
 				.setMaxResults(tamanho)
 				.getResultList();
@@ -21,7 +21,7 @@ public class ClienteDao extends AbstractDao<Cliente, Long> {
 		long totalRegistros = count();
 		long totalDePaginas = (totalRegistros + (tamanho - 1)) / tamanho;
 		
-		return new PaginacaoUtil<>(tamanho, pagina, totalDePaginas, produtos, null);
+		return new PaginacaoUtil<>(tamanho, pagina, totalDePaginas, clientes, null);
 	}
 	
 	public long count() {
@@ -45,24 +45,19 @@ public class ClienteDao extends AbstractDao<Cliente, Long> {
 	}
 	
 	public PaginacaoUtil<Cliente> findByNome(String nome, int pagina) {
-		
 		int tamanho = 5;
 		int inicio = (pagina - 1) * tamanho;
-		List<Cliente> clientes = getEntityManager().createQuery("select c from Cliente c where c.nome like concat('%',?1,'%')", Cliente.class)
-				.setParameter(1, nome)
-				.setFirstResult(inicio)
-				.setMaxResults(tamanho)
-				.getResultList();
+		List<Cliente> clientes = getEntityManager()
+				.createQuery("select c from Cliente c where c.nome like concat('%',?1,'%')", Cliente.class)
+				.setParameter(1, nome).setFirstResult(inicio).setMaxResults(tamanho).getResultList();
 		
 		long totalRegistros = clientes.size();
 		long totalDePaginas = (totalRegistros + (tamanho - 1)) / tamanho;
 		
 		return new PaginacaoUtil<>(tamanho, pagina, totalDePaginas, clientes, null);
-		
 	}
 	
-public PaginacaoUtil<Cliente> findByCpf(String cpf, int pagina) {
-		
+	public PaginacaoUtil<Cliente> findByCpf(String cpf, int pagina) {
 		int tamanho = 5;
 		int inicio = (pagina - 1) * tamanho;
 		List<Cliente> clientes = getEntityManager().createQuery("select c from Cliente c where c.cpf = ?1", Cliente.class)
@@ -75,7 +70,16 @@ public PaginacaoUtil<Cliente> findByCpf(String cpf, int pagina) {
 		long totalDePaginas = (totalRegistros + (tamanho - 1)) / tamanho;
 		
 		return new PaginacaoUtil<>(tamanho, pagina, totalDePaginas, clientes, null);
-		
+	}
+	
+	public List<Cliente> findClientesComMaisObras() {
+		return getEntityManager()
+				.createQuery("select c from Cliente c " +
+						"join c.obras o " +
+						"group by c " +
+						"order by count(o) desc", Cliente.class)
+				.setMaxResults(5)
+				.getResultList();
 	}
 
 }

@@ -1,8 +1,9 @@
 package xyz.ConstruTec.app.model;
 
 import java.io.Serializable;
+import java.util.List;
 
-public class Home implements Serializable{
+public class Home implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -10,6 +11,21 @@ public class Home implements Serializable{
 	private long qtd_cliente;
 	private long qtd_fornecedor;
 	private long qtd_obra;
+	
+	// Novos campos para o dashboard
+	private long produtos_estoque_baixo;
+	private long obras_andamento;
+	private List<String> ultimas_movimentacoes;
+	private List<String> proximas_entregas;
+	
+	// Rankings
+	private List<RankingData> produtosMaisMovimentados;
+	private List<RankingData> fornecedoresMaisAtivos;
+	private List<RankingData> clientesComMaisObras;
+	
+	// Alertas
+	private long qtd_alertas_nao_lidos;
+	private List<Alerta> ultimos_alertas;
 	
 	public long getQtd_produto() {
 		return qtd_produto;
@@ -34,6 +50,64 @@ public class Home implements Serializable{
 	}
 	public void setQtd_obra(long qtd_obra) {
 		this.qtd_obra = qtd_obra;
+	}
+	
+	// Getters e Setters para os novos campos
+	public long getProdutos_estoque_baixo() {
+		return produtos_estoque_baixo;
+	}
+	public void setProdutos_estoque_baixo(long produtos_estoque_baixo) {
+		this.produtos_estoque_baixo = produtos_estoque_baixo;
+	}
+	public long getObras_andamento() {
+		return obras_andamento;
+	}
+	public void setObras_andamento(long obras_andamento) {
+		this.obras_andamento = obras_andamento;
+	}
+	public List<String> getUltimas_movimentacoes() {
+		return ultimas_movimentacoes;
+	}
+	public void setUltimas_movimentacoes(List<String> ultimas_movimentacoes) {
+		this.ultimas_movimentacoes = ultimas_movimentacoes;
+	}
+	public List<String> getProximas_entregas() {
+		return proximas_entregas;
+	}
+	public void setProximas_entregas(List<String> proximas_entregas) {
+		this.proximas_entregas = proximas_entregas;
+	}
+	
+	public List<RankingData> getProdutosMaisMovimentados() {
+		return produtosMaisMovimentados;
+	}
+	public void setProdutosMaisMovimentados(List<RankingData> produtosMaisMovimentados) {
+		this.produtosMaisMovimentados = produtosMaisMovimentados;
+	}
+	public List<RankingData> getFornecedoresMaisAtivos() {
+		return fornecedoresMaisAtivos;
+	}
+	public void setFornecedoresMaisAtivos(List<RankingData> fornecedoresMaisAtivos) {
+		this.fornecedoresMaisAtivos = fornecedoresMaisAtivos;
+	}
+	public List<RankingData> getClientesComMaisObras() {
+		return clientesComMaisObras;
+	}
+	public void setClientesComMaisObras(List<RankingData> clientesComMaisObras) {
+		this.clientesComMaisObras = clientesComMaisObras;
+	}
+	
+	public long getQtd_alertas_nao_lidos() {
+		return qtd_alertas_nao_lidos;
+	}
+	public void setQtd_alertas_nao_lidos(long qtd_alertas_nao_lidos) {
+		this.qtd_alertas_nao_lidos = qtd_alertas_nao_lidos;
+	}
+	public List<Alerta> getUltimos_alertas() {
+		return ultimos_alertas;
+	}
+	public void setUltimos_alertas(List<Alerta> ultimos_alertas) {
+		this.ultimos_alertas = ultimos_alertas;
 	}
 	
 	@Override

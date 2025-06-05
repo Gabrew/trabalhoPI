@@ -26,6 +26,11 @@ public class FornecedorController {
 	@Autowired
 	private FornecedorService fornecedorService;
 
+	@GetMapping
+	public String index() {
+		return "redirect:/fornecedores/listar";
+	}
+
 	@GetMapping("/cadastrar")
 	public String cadastrar(Fornecedor fornecedor) {
 		return "fornecedor/cadastro";
@@ -33,10 +38,8 @@ public class FornecedorController {
 
 	@GetMapping("/listar")
 	public String listar(ModelMap model, @RequestParam("page") Optional<Integer> page) {
-
 		int paginaAtual = page.orElse(1);
 		PaginacaoUtil<Fornecedor> pageFornecedor = fornecedorService.buscarPorPagina(paginaAtual);
-
 		model.addAttribute("pageFornecedor", pageFornecedor);
 		return "fornecedor/lista";
 	}
@@ -92,20 +95,16 @@ public class FornecedorController {
 
 		Fornecedor fornCNPJ = fornecedorService.buscarPorCnpj(fornecedor.getCnpj());
 
-		if (fornCNPJ != null) {
-			if (fornCNPJ.getId() != fornecedor.getId()) {
-				model.addAttribute("fail", "Já existe um fornecedor com o CNPJ informado.");
-				return "fornecedor/cadastro";
-			}
+		if (fornCNPJ != null && fornCNPJ.getId() != fornecedor.getId()) {
+			model.addAttribute("fail", "Já existe um fornecedor com o CNPJ informado.");
+			return "fornecedor/cadastro";
 		}
 
 		Fornecedor fornInscEst = fornecedorService.buscarPorInscricaoEstadual(fornecedor.getInscricaoEstadual());
 
-		if (fornInscEst != null) {
-			if (fornInscEst.getId() != fornecedor.getId()) {
-				model.addAttribute("fail", "Já existe um fornecedor com Inscrição Estadual informada.");
-				return "fornecedor/cadastro";
-			}
+		if (fornInscEst != null && fornInscEst.getId() != fornecedor.getId()) {
+			model.addAttribute("fail", "Já existe um fornecedor com Inscrição Estadual informada.");
+			return "fornecedor/cadastro";
 		}
 
 		fornecedorService.editar(fornecedor);
@@ -116,8 +115,7 @@ public class FornecedorController {
 	@GetMapping("/buscar/nomeFantasia")
 	public String getPorNomeFantasia(@RequestParam("nomeFantasia") String nomeFantasia, ModelMap model, @RequestParam("page") Optional<Integer> page) {
 		int paginaAtual = page.orElse(1);
-		PaginacaoUtil<Fornecedor> pageFornecedor = fornecedorService.buscarPorPaginaNomeFantasia(nomeFantasia,
-				paginaAtual);
+		PaginacaoUtil<Fornecedor> pageFornecedor = fornecedorService.buscarPorPaginaNomeFantasia(nomeFantasia, paginaAtual);
 		model.addAttribute("pageFornecedor", pageFornecedor);
 		return "fornecedor/lista";
 	}
@@ -125,7 +123,7 @@ public class FornecedorController {
 	@GetMapping("/buscar/razaoSocial")
 	public String getPorRazaoSocial(@RequestParam("razaoSocial") String razaoSocial, ModelMap model, @RequestParam("page") Optional<Integer> page) {
 		int paginaAtual = page.orElse(1);
-		PaginacaoUtil<Fornecedor> pageFornecedor = fornecedorService.buscarPorPaginaNomeFantasia(razaoSocial,paginaAtual);
+		PaginacaoUtil<Fornecedor> pageFornecedor = fornecedorService.buscarPorPaginaRazaoSocial(razaoSocial, paginaAtual);
 		model.addAttribute("pageFornecedor", pageFornecedor);
 		return "fornecedor/lista";
 	}

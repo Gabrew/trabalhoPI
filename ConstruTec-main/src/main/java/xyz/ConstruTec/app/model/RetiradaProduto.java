@@ -54,4 +54,8 @@ public class RetiradaProduto extends AbstractEntity<Long> {
     public void setObra(Obra obra) {
         this.obra = obra;
     }
+
+    public String getDescricao() {
+        return produto != null ? produto.getDescricao() : "";
+    }
 }

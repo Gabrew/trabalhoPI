@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Modal Nova Obra -->
+    <div th:fragment="modal-nova-obra">
+        <div class="modal fade" id="novaObraModal" tabindex="-1" aria-labelledby="novaObraModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="novaObraModalLabel">Nova Obra</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{/obras/salvar}" method="POST" th:object="${obra}" id="formNovaObra">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Nome da Obra</label>
+                                <input type="text" class="form-control" th:field="*{nome}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Cliente</label>
+                                <select class="form-select" name="clienteId" required>
+                                    <option value="">-- Selecione --</option>
+                                    <option th:each="cliente : ${clientes}" 
+                                            th:value="${cliente.id}" 
+                                            th:text="${cliente.nome + ' ' + cliente.sobrenome}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Data de Início</label>
+                                    <input type="date" class="form-control" th:field="*{dataInicio}" required>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Data Prevista para Entrega</label>
+                                    <input type="date" class="form-control" th:field="*{dataTermino}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Valor Estimado (R$)</label>
+                                <input type="text" 
+                                       id="valorEstimado"
+                                       class="form-control" 
+                                       th:field="*{valorEstimado}" 
+                                       required>
+                                <div class="form-text">
+                                    Valor máximo: R$ 999.999.999.999,99
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" th:field="*{status}" required>
+                                    <option th:each="status : ${T(xyz.ConstruTec.app.model.StatusObra).values()}"
+                                            th:value="${status}"
+                                            th:text="${status.descricao}">Status</option>
+                                </select>
+                            </div>
+
+                            <!-- Campos de Endereço -->
+                            <div class="mb-3">
+                                <label class="form-label">CEP</label>
+                                <input type="text" class="form-control" id="cep" th:field="*{cep}" placeholder="00000-000">
+                                <div class="form-text">Digite o CEP para preenchimento automático do endereço</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Endereço</label>
+                                <input type="text" class="form-control" id="endereco" th:field="*{endereco}" 
+                                       placeholder="Rua, número, bairro" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Cidade</label>
+                                    <input type="text" class="form-control" id="cidade" th:field="*{cidade}" 
+                                           placeholder="Cidade" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Estado</label>
+                                    <select class="form-select" id="estado" th:field="*{estado}" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="AC">Acre</option>
+                                        <option value="AL">Alagoas</option>
+                                        <option value="AP">Amapá</option>
+                                        <option value="AM">Amazonas</option>
+                                        <option value="BA">Bahia</option>
+                                        <option value="CE">Ceará</option>
+                                        <option value="DF">Distrito Federal</option>
+                                        <option value="ES">Espírito Santo</option>
+                                        <option value="GO">Goiás</option>
+                                        <option value="MA">Maranhão</option>
+                                        <option value="MT">Mato Grosso</option>
+                                        <option value="MS">Mato Grosso do Sul</option>
+                                        <option value="MG">Minas Gerais</option>
+                                        <option value="PA">Pará</option>
+                                        <option value="PB">Paraíba</option>
+                                        <option value="PR">Paraná</option>
+                                        <option value="PE">Pernambuco</option>
+                                        <option value="PI">Piauí</option>
+                                        <option value="RJ">Rio de Janeiro</option>
+                                        <option value="RN">Rio Grande do Norte</option>
+                                        <option value="RS">Rio Grande do Sul</option>
+                                        <option value="RO">Rondônia</option>
+                                        <option value="RR">Roraima</option>
+                                        <option value="SC">Santa Catarina</option>
+                                        <option value="SP">São Paulo</option>
+                                        <option value="SE">Sergipe</option>
+                                        <option value="TO">Tocantins</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="hidden" th:field="*{latitude}">
+                            <input type="hidden" th:field="*{longitude}">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Salvar Obra</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Atualizar Status -->
+    <div th:fragment="modal-atualizar-status" class="modal fade" id="atualizarStatusModal" tabindex="-1" aria-labelledby="atualizarStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="atualizarStatusModalLabel">Atualizar Status da Obra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="obraIdStatus" name="obraId">
+                    <div class="mb-3">
+                        <label for="novoStatus" class="form-label">Novo Status</label>
+                        <select class="form-select" id="novoStatus" name="novoStatus" required>
+                            <option value="">Selecione...</option>
+                            <option value="EM_ANDAMENTO">Em Andamento</option>
+                            <option value="CONCLUIDA">Concluída</option>
+                            <option value="CANCELADA">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="observacoesStatus" class="form-label">Observações</label>
+                        <textarea class="form-control" id="observacoesStatus" name="observacoes" rows="3" 
+                                  placeholder="Descreva o motivo da mudança de status..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="atualizarStatus()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

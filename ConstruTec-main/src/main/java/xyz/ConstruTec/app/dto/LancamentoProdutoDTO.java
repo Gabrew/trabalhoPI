@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.springframework.format.annotation.DateTimeFormat;
 
 public class LancamentoProdutoDTO {
     
@@ -26,6 +27,7 @@ public class LancamentoProdutoDTO {
     private BigDecimal precoCusto;
     
     @NotNull(message = "A data é obrigatória")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataRetirada;
 
     // Getters e Setters
